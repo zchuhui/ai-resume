@@ -24,40 +24,54 @@ const upload = multer({
   },
 })
 
-router.post('/', upload.single('file'), async (req, res) => {
-  try {
-    const file = req.file
-    if (!file) {
-      return res.status(400).json({ success: false, error: '请上传文件' })
+const uploadMiddleware = upload.single('file')
+
+router.post('/', (req, res) => {
+  uploadMiddleware(req, res, async (err) => {
+    if (err) {
+      const message = err instanceof multer.MulterError ? err.message : err.message
+      return res.status(400).json({ success: false, error: message || '文件上传失败' })
     }
 
-    const mimeType = file.mimetype
-    const buffer = file.buffer
+    try {
+      const file = req.file
+      if (!file) {
+        return res.status(400).json({ success: false, error: '请上传文件' })
+      }
 
-    const text = await extractText(buffer, mimeType)
+      const mimeType = file.mimetype
+      const buffer = file.buffer
 
-    // Release buffer immediately after extraction
-    file.buffer = Buffer.alloc(0)
+      let text: string
+      try {
+        text = await extractText(buffer, mimeType)
+      } catch (parseErr: any) {
+        return res.status(400).json({ success: false, error: parseErr.message || '文件解析失败' })
+      }
 
-    if (!text || text.trim().length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: '无法从文件中提取文本，请检查文件内容',
+      // Release buffer immediately after extraction
+      file.buffer = Buffer.alloc(0)
+
+      if (!text || text.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: '无法从文件中提取文本，请检查文件内容',
+        })
+      }
+
+      res.json({
+        success: true,
+        data: {
+          text,
+          fileName: file.originalname,
+          fileType: mimeType === 'application/pdf' ? 'pdf' : 'docx',
+        },
       })
+    } catch (err: any) {
+      console.error('[Upload Error]', err.message)
+      res.status(500).json({ success: false, error: err.message || '文件解析失败' })
     }
-
-    res.json({
-      success: true,
-      data: {
-        text,
-        fileName: file.originalname,
-        fileType: mimeType === 'application/pdf' ? 'pdf' : 'docx',
-      },
-    })
-  } catch (err: any) {
-    console.error('[Upload Error]', err.message)
-    res.status(500).json({ success: false, error: err.message || '文件解析失败' })
-  }
+  })
 })
 
 export default router

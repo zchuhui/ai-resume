@@ -1,14 +1,21 @@
 import OpenAI from 'openai'
 
-const client = new OpenAI({
-  apiKey: process.env.AI_API_KEY,
-  baseURL: process.env.AI_BASE_URL || 'https://api.openai.com/v1',
-})
-
 const MODEL = process.env.AI_MODEL || 'gpt-4o-mini'
 const TIMEOUT_MS = 30000
 
+function getOpenAIClient(): OpenAI {
+  const apiKey = process.env.AI_API_KEY || process.env.OPENAI_API_KEY
+  if (!apiKey || apiKey === 'your_api_key') {
+    throw new Error('AI_API_KEY 或 OPENAI_API_KEY 环境变量未配置')
+  }
+  return new OpenAI({
+    apiKey,
+    baseURL: process.env.AI_BASE_URL || 'https://api.openai.com/v1',
+  })
+}
+
 async function callLLM(systemPrompt: string, userPrompt: string, retries = 1): Promise<string> {
+  const client = getOpenAIClient()
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       const response = await client.chat.completions.create(

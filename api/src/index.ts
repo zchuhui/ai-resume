@@ -1,14 +1,14 @@
+import dotenv from 'dotenv'
+dotenv.config()
+
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 
 import uploadRoutes from './routes/upload'
 import parseRoutes from './routes/parse-structure'
 import optimizeRoutes from './routes/optimize'
 import exportRoutes from './routes/export'
 import { errorHandler } from './middleware/error-handler'
-
-dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3001

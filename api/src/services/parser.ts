@@ -2,13 +2,23 @@ import pdfParse from 'pdf-parse'
 import mammoth from 'mammoth'
 
 export async function extractTextFromPdf(buffer: Buffer): Promise<string> {
-  const data = await pdfParse(buffer)
-  return data.text.trim()
+  try {
+    const data = await pdfParse(buffer)
+    return data.text.trim()
+  } catch (err: any) {
+    console.error('[PDF Parse Error]', err.message)
+    throw new Error(`PDF 解析失败：${err.message || '文件损坏或格式不支持'}`)
+  }
 }
 
 export async function extractTextFromDocx(buffer: Buffer): Promise<string> {
-  const result = await mammoth.extractRawText({ arrayBuffer: buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) as ArrayBuffer })
-  return result.value.trim()
+  try {
+    const result = await mammoth.extractRawText({ buffer })
+    return result.value.trim()
+  } catch (err: any) {
+    console.error('[Docx Parse Error]', err.message)
+    throw new Error(`Word 解析失败：${err.message || '文件损坏或格式不支持'}`)
+  }
 }
 
 export async function extractText(buffer: Buffer, mimeType: string): Promise<string> {
