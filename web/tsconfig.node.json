@@ -13,6 +13,8 @@
 
     "verbatimModuleSyntax": false,
 
+    "types": ["node"],
+
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "isolatedModules": true,

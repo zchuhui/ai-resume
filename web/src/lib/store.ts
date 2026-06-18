@@ -30,7 +30,7 @@ export const useResumeStore = create<ResumeState>()(
       ...initialState,
       setRawText: (text) => set({ rawText: text }),
       setParsedResume: (resume) => set({ parsedResume: resume }),
-      setOptimizedResume: (resume) => set({ optimizedResume: resume }),
+      setOptimizedResume: (resume) => set({ optimizedResume: resume, selectedTemplate: null }),
       setOptimizeRequest: (request) => set({ optimizeRequest: request }),
       setSelectedTemplate: (template) => set({ selectedTemplate: template }),
       reset: () => set(initialState),

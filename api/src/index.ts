@@ -6,6 +6,7 @@ import uploadRoutes from './routes/upload'
 import parseRoutes from './routes/parse-structure'
 import optimizeRoutes from './routes/optimize'
 import exportRoutes from './routes/export'
+import { errorHandler } from './middleware/error-handler'
 
 dotenv.config()
 
@@ -28,6 +29,8 @@ app.use('/api/export', exportRoutes)
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
+
+app.use(errorHandler)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
