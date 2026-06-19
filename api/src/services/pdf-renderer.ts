@@ -464,6 +464,9 @@ const htmlGenerators: Record<TemplateStyle, (resume: Resume, tokens: typeof desi
   business: generateBusinessHtml,
   creative: generateCreativeHtml,
   academic: generateAcademicHtml,
+  cobalt: generateTechHtml,
+  corporate: generateElegantHtml,
+  compact: generateBusinessHtml,
 }
 
 export function generateHtmlForPdf(resume: Resume, template: TemplateStyle): string {

@@ -5,6 +5,7 @@ import { ElegantTemplate } from './ElegantTemplate'
 import { BusinessTemplate } from './BusinessTemplate'
 import { CreativeTemplate } from './CreativeTemplate'
 import { AcademicTemplate } from './AcademicTemplate'
+import { CobaltTemplate, CorporateTemplate, CompactTemplate } from './ExpandedTemplates'
 import { cn } from '@/lib/utils'
 
 interface ResumePreviewProps {
@@ -20,6 +21,9 @@ const templates: Record<TemplateStyle, React.ComponentType<{ resume: Resume; cla
   business: BusinessTemplate,
   creative: CreativeTemplate,
   academic: AcademicTemplate,
+  cobalt: CobaltTemplate,
+  corporate: CorporateTemplate,
+  compact: CompactTemplate,
 }
 
 export function ResumePreview({ resume, style, className }: ResumePreviewProps) {
@@ -38,4 +42,4 @@ export function ResumePreview({ resume, style, className }: ResumePreviewProps) 
   )
 }
 
-export { MinimalistTemplate, TechTemplate, ElegantTemplate, BusinessTemplate, CreativeTemplate, AcademicTemplate }
+export { MinimalistTemplate, TechTemplate, ElegantTemplate, BusinessTemplate, CreativeTemplate, AcademicTemplate, CobaltTemplate, CorporateTemplate, CompactTemplate }

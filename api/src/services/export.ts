@@ -904,6 +904,24 @@ function generateAcademicDoc(resume: Resume, colors: TemplateColors, fonts: Temp
 //  MAIN EXPORT
 // ════════════════════════════════════════════════════════════
 
+function generateDocByLayout(resume: Resume, template: TemplateStyle, colors: TemplateColors, fonts: TemplateFonts): Document {
+  const layout = designTokens[template]?.layout
+
+  if (layout?.columns === 'sidebar-left' || layout?.columns === 'sidebar-right') {
+    return generateTechDoc(resume, colors, fonts)
+  }
+
+  if (layout?.header === 'band') {
+    return generateElegantDoc(resume, colors, fonts)
+  }
+
+  if (layout?.columns === 'two' || layout?.columns === 'asymmetric') {
+    return generateBusinessDoc(resume, colors, fonts)
+  }
+
+  return generateMinimalistDoc(resume, colors, fonts)
+}
+
 export async function generateDocx(resume: Resume, template: TemplateStyle): Promise<Buffer> {
   const colors = colorMap[template] || colorMap.minimalist
   const fonts = fontMap[template] || fontMap.minimalist
@@ -926,8 +944,10 @@ export async function generateDocx(resume: Resume, template: TemplateStyle): Pro
       doc = generateAcademicDoc(resume, colors, fonts)
       break
     case 'minimalist':
-    default:
       doc = generateMinimalistDoc(resume, colors, fonts)
+      break
+    default:
+      doc = generateDocByLayout(resume, template, colors, fonts)
       break
   }
 

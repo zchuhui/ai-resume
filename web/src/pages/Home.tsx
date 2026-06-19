@@ -1,11 +1,10 @@
 import { motion } from 'framer-motion'
-import { Upload, Sparkles, Download, ArrowRight } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Download, FileText, Layers3, Sparkles, Target, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Navbar } from '@/components/Navbar'
 import { Footer } from '@/components/Footer'
 import { ResumePreview } from '@/components/resume/ResumePreview'
-import { defaultResume } from '@/lib/mock-resume'
+import { getTemplateDemoResume } from '@/lib/mock-resume'
 import { templateList } from '@/lib/template-config'
 import type { TemplateStyle } from '@/types/resume'
 
@@ -17,193 +16,195 @@ const steps = [
   {
     icon: Upload,
     title: '上传简历',
-    description: '支持 PDF、Word 格式，智能提取简历内容',
+    description: '解析 PDF / Word 内容，保留原始经历与关键信息。',
   },
   {
-    icon: Sparkles,
-    title: 'AI 优化',
-    description: '按目标岗位 JD 扩写、精简、改写，提升匹配度',
+    icon: Target,
+    title: '匹配岗位',
+    description: '粘贴 JD 后，围绕关键词、成果和项目重写表达。',
   },
   {
     icon: Download,
-    title: '选择导出',
-    description: '多种专业模板任选，一键下载 PDF 或 Word',
+    title: '导出投递',
+    description: '选择合适模板，下载 PDF 或 Word 版本。',
   },
+]
+
+const heroTemplates: Array<{ style: TemplateStyle; offset: string; rotate: string; width: string }> = [
+  { style: 'cobalt', offset: 'left-[4%] top-[22%]', rotate: '-rotate-3', width: 'w-[34%]' },
+  { style: 'corporate', offset: 'left-[32%] top-[8%]', rotate: 'rotate-0', width: 'w-[42%]' },
+  { style: 'compact', offset: 'right-[2%] top-[24%]', rotate: 'rotate-3', width: 'w-[34%]' },
 ]
 
 const styles = templateList.map((t) => ({
   style: t.id,
   label: t.label,
   description: t.description,
-})) as { style: TemplateStyle; label: string; description: string }[]
+  recommended: t.recommended.slice(0, 3).join(' / '),
+})) as { style: TemplateStyle; label: string; description: string; recommended: string }[]
 
 export default function Home({ onStart }: HomeProps) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-slate-950">
       <Navbar onStart={onStart} />
 
-      {/* Hero */}
-      <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700">
-        {/* Decorative glows */}
-        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-blue-500/20 blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-violet-500/20 blur-[100px] pointer-events-none" />
+      <section className="relative overflow-hidden bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_58%,#ffffff_100%)] pt-28">
+        <div
+          className="absolute inset-0 opacity-[0.55]"
+          style={{
+            backgroundImage:
+              'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+            maskImage: 'linear-gradient(to bottom, black 0%, transparent 72%)',
+          }}
+        />
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 grid lg:grid-cols-2 gap-12 items-center">
-          {/* Left: Copy */}
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          >
-            <h1 className="text-4xl sm:text-5xl lg:text-[48px] font-bold text-white leading-[1.15] tracking-tight">
-              AI 按目标岗位，<br />
-              优化你的简历
-            </h1>
-            <p className="mt-6 text-lg text-slate-400 max-w-lg leading-relaxed">
-              上传简历、粘贴岗位 JD，30 秒获得多套专业设计。
-              让简历内容更精准、排版更高级、面试机会更多。
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button
-                id="hero-cta"
-                size="lg"
-                onClick={onStart}
-                className="group bg-gradient-to-r from-blue-500 to-violet-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.35)]"
-              >
-                立即开始制作
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-              <Button
-                variant="secondary"
-                size="lg"
-                className="bg-white/10 text-white border-white/20 hover:bg-white/20 hover:text-white"
-                onClick={() => document.getElementById('templates')?.scrollIntoView({ behavior: 'smooth' })}
-              >
-                查看模板
-              </Button>
-            </div>
-            <div className="mt-10 flex items-center gap-6 text-sm text-slate-400">
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-green-500/20 flex items-center justify-center">
-                  <Sparkles className="w-3 h-3 text-green-400" />
-                </div>
-                AI 智能解析
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center">
-                  <Download className="w-3 h-3 text-blue-400" />
-                </div>
-                一键导出
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-5 h-5 rounded-full bg-violet-500/20 flex items-center justify-center">
-                  <Upload className="w-3 h-3 text-violet-400" />
-                </div>
-                数据安全
-              </div>
-            </div>
-          </motion.div>
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-[0.86fr_1.14fr] gap-12 items-center lg:min-h-[620px] pb-14 lg:pb-16">
+            <motion.div
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: 'easeOut' }}
+              className="max-w-xl"
+            >
+              <h1 className="text-4xl sm:text-5xl lg:text-[64px] font-bold leading-[1.05] tracking-tight text-slate-950">
+                AI 按目标岗位，
+                <span className="block text-blue-600">优化你的简历</span>
+              </h1>
+              <p className="mt-6 text-lg leading-8 text-slate-600">
+                上传简历、粘贴岗位 JD，系统会重组经历表达、补齐关键词，并生成适合不同岗位场景的专业模板。
+              </p>
 
-          {/* Right: 3D stacked templates */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-            className="relative h-[400px] sm:h-[500px] hidden lg:block"
-            style={{ perspective: '1200px' }}
-          >
-            {([
-              { style: 'minimalist', z: 60, x: -40, rotate: -12, delay: 0 },
-              { style: 'tech', z: 30, x: 0, rotate: 0, delay: 0.15 },
-              { style: 'elegant', z: 0, x: 40, rotate: 12, delay: 0.3 },
-            ] as { style: TemplateStyle; z: number; x: number; rotate: number; delay: number }[]).map(
-              (item, index) => (
+              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                <Button
+                  id="hero-cta"
+                  size="lg"
+                  onClick={onStart}
+                  className="h-12 px-6 rounded-md bg-blue-600 hover:bg-blue-700 shadow-[0_18px_36px_rgba(37,99,235,0.22)]"
+                >
+                  开始制作
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  className="h-12 px-6 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+                  onClick={() => document.getElementById('templates')?.scrollIntoView({ behavior: 'smooth' })}
+                >
+                  浏览模板
+                </Button>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-600">
+                {['支持 PDF / Word', '按 JD 优化关键词', '多岗位模板预览'].map((item) => (
+                  <span key={item} className="inline-flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.1, ease: 'easeOut' }}
+              className="relative hidden lg:block h-[560px]"
+            >
+              <div className="absolute inset-x-10 bottom-10 h-10 rounded-full bg-blue-950/10 blur-2xl" />
+              <div className="absolute inset-0 rounded-[28px] border border-slate-200/70 bg-white/55 shadow-[0_24px_80px_rgba(15,23,42,0.08)] backdrop-blur-sm" />
+              {heroTemplates.map((item, index) => (
                 <motion.div
                   key={item.style}
-                  initial={{ opacity: 0, rotateY: item.rotate - 20, translateZ: item.z - 40 }}
-                  animate={{
-                    opacity: 1,
-                    rotateY: item.rotate,
-                    translateZ: item.z,
-                    translateX: item.x,
-                    translateY: [0, -6, 0],
-                  }}
-                  transition={{
-                    opacity: { duration: 0.6, delay: 0.3 + item.delay },
-                    rotateY: { duration: 0.7, delay: 0.3 + item.delay },
-                    translateY: { duration: 4, repeat: Infinity, ease: 'easeInOut', delay: index * 0.5 },
-                  }}
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] origin-center"
-                  style={{ transformStyle: 'preserve-3d' }}
+                  initial={{ opacity: 0, y: 24 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.55, delay: 0.2 + index * 0.12 }}
+                  className={`absolute ${item.offset} ${item.width} ${item.rotate}`}
                 >
-                  <ResumePreview resume={defaultResume} style={item.style} className="rounded-lg shadow-2xl" />
-                </motion.div>
-              )
-            )}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Steps */}
-      <section className="py-24 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-semibold text-slate-900">三步完成简历升级</h2>
-            <p className="mt-3 text-slate-500">简单、快速、专业</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {steps.map((step) => (
-              <Card key={step.title} className="group">
-                <CardHeader>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/10 to-violet-500/10 flex items-center justify-center text-blue-600 mb-4">
-                    <step.icon className="w-6 h-6" />
+                  <div className="rounded-lg border border-slate-200 bg-white p-2 shadow-[0_22px_56px_rgba(15,23,42,0.16)]">
+                    <ResumePreview resume={getTemplateDemoResume(item.style)} style={item.style} className="rounded-md shadow-none" />
                   </div>
-                  <CardTitle>{step.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-base">{step.description}</CardDescription>
-                </CardContent>
-              </Card>
-            ))}
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Templates preview */}
-      <section id="templates" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-semibold text-slate-900">六种专业模板风格</h2>
-            <p className="mt-3 text-slate-500">AI 会根据你的简历内容智能生成，任选其一</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {styles.map((item) => (
-              <div key={item.style} className="group">
-                <div className="aspect-[1/1.414] rounded-xl border border-slate-200 overflow-hidden shadow-[0_4px_20px_rgba(15,23,42,0.06)] transition-all duration-200 hover:shadow-[0_12px_32px_rgba(15,23,42,0.1)] hover:scale-[1.02]">
-                  <ResumePreview resume={defaultResume} style={item.style} />
-                </div>
-                <div className="mt-4 text-center">
-                  <h3 className="text-lg font-semibold text-slate-900">{item.label}</h3>
-                  <p className="text-sm text-slate-500">{item.description}</p>
-                </div>
+      <section className="border-y border-slate-200 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid md:grid-cols-3 gap-8">
+          {steps.map((step, index) => (
+            <div key={step.title} className="flex gap-4">
+              <div className="w-11 h-11 shrink-0 rounded-md border border-blue-100 bg-blue-50 text-blue-600 flex items-center justify-center">
+                <step.icon className="w-5 h-5" />
               </div>
-            ))}
+              <div>
+                <div className="text-xs font-semibold text-slate-400 mb-1">0{index + 1}</div>
+                <h2 className="text-lg font-semibold text-slate-950">{step.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{step.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="templates" className="py-24 bg-slate-50/70">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
+            <div>
+              <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
+                {styles.length} 种岗位化简历模板
+              </h2>
+              <p className="mt-3 max-w-2xl text-slate-600">
+                每套模板都用对应职业场景演示，从国企综合岗到数据分析、品牌内容、UI/UX，不再只展示同一个前端工程师样例。
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              className="w-fit rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+              onClick={onStart}
+            >
+              <Layers3 className="w-4 h-4" />
+              用我的简历生成
+            </Button>
+          </div>
+
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+            {styles.map((item) => {
+              const resume = getTemplateDemoResume(item.style)
+              return (
+                <div key={item.style} className="group">
+                  <div className="aspect-[1/1.414] rounded-lg border border-slate-200 bg-white overflow-hidden shadow-[0_10px_30px_rgba(15,23,42,0.07)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_18px_48px_rgba(15,23,42,0.11)]">
+                    <ResumePreview resume={resume} style={item.style} />
+                  </div>
+                  <div className="pt-4">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <h3 className="text-lg font-semibold text-slate-950">{item.label}</h3>
+                      <span className="text-sm font-medium text-blue-600">{resume.basicInfo.title}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">{item.recommended}</p>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* CTA section */}
-      <section className="py-24 bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-            准备好让你的简历脱颖而出了吗？
+      <section className="bg-white py-20">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="mx-auto mb-6 w-12 h-12 rounded-md bg-blue-600 text-white flex items-center justify-center">
+            <FileText className="w-6 h-6" />
+          </div>
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
+            用真实岗位目标，生成更像投递成品的简历
           </h2>
-          <p className="text-lg text-slate-400 mb-10">
-            现在上传简历，体验 AI 驱动的专业优化。
+          <p className="mt-4 text-slate-600">
+            你的经历不会被模板限制，AI 会围绕岗位要求调整表达，再匹配最合适的视觉风格。
           </p>
-          <Button size="lg" onClick={onStart} className="bg-gradient-to-r from-blue-500 to-violet-500 hover:shadow-[0_0_30px_rgba(139,92,246,0.35)]">
+          <Button size="lg" onClick={onStart} className="mt-8 rounded-md bg-blue-600 hover:bg-blue-700">
             立即开始制作
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <Sparkles className="w-4 h-4" />
           </Button>
         </div>
       </section>

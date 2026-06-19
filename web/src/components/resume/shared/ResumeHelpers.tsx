@@ -296,7 +296,7 @@ export interface TimelineItemProps {
   last?: boolean
 }
 
-export function TimelineItem({ title, subtitle, date, descriptions, tokens, index, last = false }: TimelineItemProps) {
+export function TimelineItem({ title, subtitle, date, descriptions, tokens, last = false }: TimelineItemProps) {
   const { colors, fonts } = tokens
 
   return (

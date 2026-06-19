@@ -1,7 +1,19 @@
 // 共享设计令牌 —— 前端预览与后端 Word 导出共用，杜绝颜色/字体双份手抄漂移。
 // 该文件为纯 TS 常量，无副作用，前后端均可直接 import。
 
-export type TemplateStyle = 'minimalist' | 'tech' | 'elegant' | 'business' | 'creative' | 'academic'
+export const TEMPLATE_IDS = [
+  'minimalist',
+  'tech',
+  'elegant',
+  'business',
+  'creative',
+  'academic',
+  'cobalt',
+  'corporate',
+  'compact',
+] as const
+
+export type TemplateStyle = typeof TEMPLATE_IDS[number]
 
 export interface ColorScheme {
   bg: string
@@ -247,6 +259,108 @@ export const designTokens: Record<TemplateStyle, TemplateTokens> = {
     },
     decoration: {
       style: 'timeline',
+      borderRadius: 'none',
+      useIcons: true,
+      usePatterns: false,
+      useShadows: false,
+    },
+  },
+  cobalt: {
+    name: '钴蓝专业',
+    mood: '干净可信、左栏信息、通用首选',
+    colors: {
+      bg: '#ffffff',
+      surface: '#f1f5f9',
+      text: '#0f172a',
+      textMuted: '#64748b',
+      textInverse: '#ffffff',
+      accent: '#2563eb',
+      accent2: '#1d4ed8',
+      accent3: '#93c5fd',
+      border: '#e2e8f0',
+      borderLight: '#f1f5f9',
+      highlight: '#eff6ff',
+    },
+    fonts: {
+      heading: "'Inter', sans-serif",
+      body: "'Inter', sans-serif",
+    },
+    layout: {
+      header: 'sidebar',
+      columns: 'sidebar-left',
+      spacing: 'normal',
+      maxDensity: 'medium',
+    },
+    decoration: {
+      style: 'line',
+      borderRadius: 'small',
+      useIcons: true,
+      usePatterns: false,
+      useShadows: false,
+    },
+  },
+  corporate: {
+    name: '中国红国企',
+    mood: '稳重正式、权威、党政国企',
+    colors: {
+      bg: '#ffffff',
+      surface: '#fef2f2',
+      text: '#1f2937',
+      textMuted: '#6b7280',
+      textInverse: '#ffffff',
+      accent: '#b91c1c',
+      accent2: '#dc2626',
+      accent3: '#fca5a5',
+      border: '#e5e7eb',
+      borderLight: '#f3f4f6',
+      highlight: '#fef2f2',
+    },
+    fonts: {
+      heading: "'Noto Serif SC', serif",
+      body: "'Noto Sans SC', sans-serif",
+    },
+    layout: {
+      header: 'band',
+      columns: 'two',
+      spacing: 'normal',
+      maxDensity: 'high',
+    },
+    decoration: {
+      style: 'line',
+      borderRadius: 'none',
+      useIcons: false,
+      usePatterns: false,
+      useShadows: false,
+    },
+  },
+  compact: {
+    name: '紧凑单页',
+    mood: '高密度、一页装满',
+    colors: {
+      bg: '#ffffff',
+      surface: '#f9fafb',
+      text: '#111827',
+      textMuted: '#6b7280',
+      textInverse: '#ffffff',
+      accent: '#2563eb',
+      accent2: '#1f2937',
+      accent3: '#9ca3af',
+      border: '#e5e7eb',
+      borderLight: '#f3f4f6',
+      highlight: '#f9fafb',
+    },
+    fonts: {
+      heading: "'Inter', sans-serif",
+      body: "'Inter', sans-serif",
+    },
+    layout: {
+      header: 'left',
+      columns: 'two',
+      spacing: 'compact',
+      maxDensity: 'high',
+    },
+    decoration: {
+      style: 'line',
       borderRadius: 'none',
       useIcons: true,
       usePatterns: false,

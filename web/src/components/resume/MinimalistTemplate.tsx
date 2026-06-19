@@ -11,7 +11,7 @@ interface MinimalistTemplateProps {
 export function MinimalistTemplate({ resume, className }: MinimalistTemplateProps) {
   const { basicInfo, summary, experience, education, projects, skills, certifications, languages } = resume
   const tokens = getTokens('minimalist')
-  const { colors, fonts, layout } = tokens
+  const { colors, fonts } = tokens
 
   const contactItems = useContactItems(resume)
 
@@ -188,4 +188,3 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
     </div>
   )
 }
-

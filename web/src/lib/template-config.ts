@@ -51,6 +51,27 @@ export const templateRegistry: Record<TemplateStyle, TemplateMeta> = {
     mood: '严谨、书卷气、时间轴',
     recommended: ['高校', '研究院', 'PhD', '教师', '研发'],
   },
+  cobalt: {
+    id: 'cobalt',
+    label: '钴蓝专业',
+    description: '浅灰左栏 + 钴蓝点缀，结构清晰，适配几乎所有岗位',
+    mood: '干净可信、左栏信息、通用首选',
+    recommended: ['通用', '运营', '项目', '管培', '行政'],
+  },
+  corporate: {
+    id: 'corporate',
+    label: '中国红国企',
+    description: '红色顶栏 + 思源宋体，端正权威，专为国企/事业单位/央企/党政',
+    mood: '稳重正式、权威、党政国企',
+    recommended: ['国企', '事业单位', '央企', '党政', '银行'],
+  },
+  compact: {
+    id: 'compact',
+    label: '紧凑单页',
+    description: '高密度双栏，信息塞满一页不浪费，适合海投与信息量大的应届',
+    mood: '高密度、一页装满',
+    recommended: ['应届', '海投', '技术', '销售', '多经历'],
+  },
 }
 
 export const templateList = Object.values(templateRegistry)

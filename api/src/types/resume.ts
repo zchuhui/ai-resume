@@ -62,4 +62,4 @@ export interface OptimizeRequest {
   otherRequirements?: string
 }
 
-export type TemplateStyle = 'minimalist' | 'tech' | 'elegant' | 'business' | 'creative' | 'academic'
+export type { TemplateStyle } from '../../../shared/design-tokens'

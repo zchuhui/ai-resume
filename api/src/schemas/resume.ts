@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { TEMPLATE_IDS } from '../../../shared/design-tokens'
 
 export const basicInfoSchema = z.object({
   name: z.string().default(''),
@@ -69,7 +70,7 @@ export const optimizeRequestSchema = z.object({
 
 export const exportRequestSchema = z.object({
   resume: resumeSchema,
-  template: z.enum(['minimalist', 'tech', 'elegant', 'business', 'creative', 'academic']).default('minimalist'),
+  template: z.enum(TEMPLATE_IDS).default('minimalist'),
   format: z.enum(['pdf', 'docx']).default('pdf'),
 })
 
