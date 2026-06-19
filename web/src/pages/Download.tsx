@@ -101,7 +101,7 @@ export default function Download({ onRestart, onBackHome }: DownloadProps) {
         const collectTextLineIntervals = (root: HTMLElement) => {
           const rootRect = root.getBoundingClientRect()
           const intervals: Array<{ x: number; y: number; width: number; height: number; top: number; bottom: number }> = []
-          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false)
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
           let textNode: Node | null
           while ((textNode = walker.nextNode())) {
             if (!textNode.textContent?.trim().length) continue

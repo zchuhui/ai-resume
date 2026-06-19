@@ -1,0 +1,6 @@
+{
+  "envId": "ai-native-d8ghthch055daacb6",
+  "cloudrun": {
+    "name": "ai-resume-api"
+  }
+}

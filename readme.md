@@ -90,6 +90,42 @@ RATE_LIMIT_WINDOW_MS=3600000
 - `design.md`：UI/UX 设计规范、色彩系统、字体系统、页面设计、模板设计
 - `architecture.md`：系统架构、API 设计、数据模型、AI 流程、部署方案
 
+## CloudBase 部署
+
+### 部署地址
+
+| 服务 | 地址 |
+|------|------|
+| **前端（静态托管）** | [https://ai-native-d8ghthch055daacb6-1255315040.tcloudbaseapp.com/](https://ai-native-d8ghthch055daacb6-1255315040.tcloudbaseapp.com/?t=20260619) |
+| **后端 API（CloudRun）** | [https://ai-resume-api-4027063-1255315040.ap-shanghai.run.tcloudbase.com](https://ai-resume-api-4027063-1255315040.ap-shanghai.run.tcloudbase.com) |
+
+### CloudBase 资源
+
+| 资源 | 名称/ID |
+|------|---------|
+| 环境 ID | `ai-native-d8ghthch055daacb6` |
+| 环境别名 | `ai-native` |
+| 区域 | `ap-shanghai` |
+| CloudRun 服务 | `ai-resume-api` (容器模式, 0.5C/1G, MinNum=1) |
+| 静态托管域名 | `ai-native-d8ghthch055daacb6-1255315040.tcloudbaseapp.com` |
+
+### 后端环境变量
+
+部署时需要配置以下环境变量（通过 CloudRun 环境变量设置）：
+
+- `AI_API_KEY`：AI API Key（需替换为实际值）
+- `AI_BASE_URL`：AI API 地址
+- `AI_MODEL`：模型名称
+- `ALLOWED_ORIGINS`：允许的跨域来源
+- `RATE_LIMIT_MAX`：限流最大值
+- `RATE_LIMIT_WINDOW_MS`：限流窗口（毫秒）
+
+### 控制台链接
+
+- [环境概览](https://tcb.cloud.tencent.com/dev?envId=ai-native-d8ghthch055daacb6#/overview)
+- [CloudRun 服务](https://tcb.cloud.tencent.com/dev?envId=ai-native-d8ghthch055daacb6#/platform-run)
+- [静态托管](https://tcb.cloud.tencent.com/dev?envId=ai-native-d8ghthch055daacb6#/static-hosting)
+
 ## 开发计划
 
 详见 `.codebuddy/plans/ai-resume-builder-v3.md`
