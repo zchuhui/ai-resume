@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import { parseStructure } from '../services/ai'
-import { resumeSchema, parseRequestSchema } from '../schemas/resume'
+import { resumeSchema, parseRequestSchema, zodMessage } from '../schemas/resume'
 import { rateLimit } from '../middleware/rate-limit'
 import { Resume } from '../types/resume'
 
@@ -18,23 +18,12 @@ router.post('/', rateLimit, async (req, res) => {
     }
 
     const { text } = parsed.data
-    const raw = await parseStructure(text)
-
-    let resume: Resume
-    const validated = resumeSchema.safeParse(raw)
-    if (validated.success) {
-      resume = validated.data as Resume
-    } else {
-      // Attempt fallback: use raw data with defaults
-      try {
-        resume = resumeSchema.parse({ ...raw })
-      } catch {
-        return res.status(500).json({
-          success: false,
-          error: 'AI 返回的简历结构校验失败，请稍后重试',
-        })
-      }
-    }
+    // 把 schema 校验作为自愈条件传入：校验不过会带着错误回灌给模型重试
+    const resume = await parseStructure<Resume>(text, (raw) => {
+      const validated = resumeSchema.safeParse(raw)
+      if (!validated.success) throw new Error(`简历结构不符合要求 —— ${zodMessage(validated.error)}`)
+      return validated.data as Resume
+    })
 
     res.json({ success: true, data: { resume } })
   } catch (err: any) {

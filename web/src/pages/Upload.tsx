@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useResumeStore } from '@/lib/store'
-import { uploadResume, parseResume, optimizeResume } from '@/lib/api'
+import { uploadResume, parseResume, optimizeResumeStream } from '@/lib/api'
 import { FileDropzone } from '@/components/FileDropzone'
 import { LoadingOverlay } from '@/components/LoadingOverlay'
 import { Button } from '@/components/ui/button'
@@ -39,6 +39,8 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
   const [otherRequirements, setOtherRequirements] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [stage, setStage] = useState('AI 正在处理中...')
+  const [progress, setProgress] = useState<number | undefined>(undefined)
 
   const { setRawText, setParsedResume, setOptimizedResume, setOptimizeRequest, setAtsReport } = useResumeStore()
 
@@ -64,9 +66,11 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
 
     setError(null)
     setLoading(true)
+    setProgress(undefined)
 
     try {
       // 1. Upload & extract text
+      setStage('正在解析简历文件...')
       const uploadRes = await uploadResume(file)
       const rawText = uploadRes.data?.text || ''
       setRawText(rawText)
@@ -76,6 +80,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       }
 
       // 2. Parse structure
+      setStage('正在结构化解析简历...')
       const parseRes = await parseResume(rawText)
       const parsedResume = parseRes.data?.resume
       if (!parsedResume) {
@@ -83,7 +88,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       }
       setParsedResume(parsedResume)
 
-      // 3. Optimize
+      // 3. Optimize（流式，实时进度）
       const request: OptimizeRequest = {
         jobDescription: jobDescription.trim(),
         tone,
@@ -92,13 +97,14 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       }
       setOptimizeRequest(request)
 
-      const optimizeRes = await optimizeResume(parsedResume, request)
-      const optimizedResume = optimizeRes.data?.optimizedResume
-      if (!optimizedResume) {
+      setStage('AI 正在按岗位优化简历...')
+      setProgress(0)
+      const result = await optimizeResumeStream(parsedResume, request, (p) => setProgress(p))
+      if (!result.optimizedResume) {
         throw new Error('简历优化失败，请稍后重试')
       }
-      setOptimizedResume(optimizedResume)
-      setAtsReport(optimizeRes.data?.atsReport ?? null)
+      setOptimizedResume(result.optimizedResume)
+      setAtsReport(result.atsReport ?? null)
 
       onNext()
     } catch (err) {
@@ -106,12 +112,13 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       setError(message)
     } finally {
       setLoading(false)
+      setProgress(undefined)
     }
   }
 
   return (
     <PageTransition className="min-h-screen bg-slate-50">
-      {loading && <LoadingOverlay message="AI 正在优化简历..." subMessage="先解析结构，再按岗位 JD 改写，请稍候" />}
+      {loading && <LoadingOverlay message={stage} subMessage="先解析结构，再按岗位 JD 改写，请稍候" progress={progress} />}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}

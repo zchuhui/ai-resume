@@ -1,7 +1,11 @@
 import OpenAI from 'openai'
 
-const MODEL = process.env.AI_MODEL || 'gpt-4o-mini'
-const TIMEOUT_MS = 30000
+// 分任务选模型：解析任务可用更便宜的模型，优化任务用更强的模型。
+// 均回退到通用 AI_MODEL，再回退到 gpt-4o-mini，保持向后兼容。
+const PARSE_MODEL = process.env.AI_PARSE_MODEL || process.env.AI_MODEL || 'gpt-4o-mini'
+const OPTIMIZE_MODEL = process.env.AI_OPTIMIZE_MODEL || process.env.AI_MODEL || 'gpt-4o-mini'
+const MAX_TOKENS = Number(process.env.AI_MAX_TOKENS) || 4096
+const TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS) || 60000
 
 export interface AtsReport {
   matchScore: number // 0-100
@@ -13,6 +17,15 @@ export interface OptimizeResult {
   resume: Record<string, unknown>
   changes: string[]
   atsReport?: AtsReport
+}
+
+// 校验器：成功返回规范化后的值；不合规则抛出带说明的错误，供自愈重试回灌给模型。
+export type Validator<T> = (raw: unknown) => T
+
+interface ChatOptions {
+  model: string
+  temperature: number
+  maxTokens?: number
 }
 
 function getOpenAIClient(): OpenAI {
@@ -38,16 +51,17 @@ function stripCodeFence(content: string): string {
 }
 
 // 单次网络调用，出错即抛
-async function rawChat(systemPrompt: string, userPrompt: string): Promise<string> {
+async function rawChat(systemPrompt: string, userPrompt: string, opts: ChatOptions): Promise<string> {
   const client = getOpenAIClient()
   const response = await client.chat.completions.create(
     {
-      model: MODEL,
+      model: opts.model,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      temperature: 0.3,
+      temperature: opts.temperature,
+      max_tokens: opts.maxTokens,
       response_format: { type: 'json_object' },
     },
     { timeout: TIMEOUT_MS }
@@ -57,31 +71,40 @@ async function rawChat(systemPrompt: string, userPrompt: string): Promise<string
   return content
 }
 
-// 统一的重试圈：网络异常与 JSON 解析失败都会触发重试。
-// 重试时回灌提示，要求模型只输出纯 JSON，从源头降低坏 JSON 概率。
-async function callLLMJson<T>(systemPrompt: string, userPrompt: string, retries = 2): Promise<T> {
+// 统一的重试圈（自愈）：网络异常、JSON 解析失败、以及 schema 校验失败都会触发重试。
+// 重试时把上一次的具体错误回灌给模型，要求其修正，从源头提升结构化输出可靠性。
+async function callLLMJson<T>(
+  systemPrompt: string,
+  userPrompt: string,
+  opts: ChatOptions,
+  validate?: Validator<T>,
+  retries = 2
+): Promise<T> {
   let lastError: unknown
+  let feedback = ''
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const hint =
-        attempt > 0
-          ? '\n\n【重要】上一次返回的内容不是合法 JSON，请只输出纯 JSON 对象，不要包含 ``` 代码块或任何解释文字。'
-          : ''
-      const content = await rawChat(systemPrompt, userPrompt + hint)
-      return JSON.parse(stripCodeFence(content)) as T
+      const content = await rawChat(systemPrompt, userPrompt + feedback, opts)
+      const raw = JSON.parse(stripCodeFence(content))
+      return validate ? validate(raw) : (raw as T)
     } catch (error) {
       lastError = error
       if (attempt === retries) {
         console.error(`LLM/JSON call failed after ${retries + 1} attempts:`, error)
         throw error
       }
-      console.warn(`LLM/JSON attempt ${attempt + 1} failed, retrying...`, error instanceof Error ? error.message : error)
+      const reason = error instanceof Error ? error.message : '格式错误'
+      feedback = `\n\n【重要】上一次返回有误（${reason}）。请严格按要求只输出合法的纯 JSON 对象，不要包含 \`\`\` 代码块或任何解释文字。`
+      console.warn(`LLM/JSON attempt ${attempt + 1} failed, retrying...`, reason)
     }
   }
   throw lastError instanceof Error ? lastError : new Error('LLM 调用失败')
 }
 
-export async function parseStructure(text: string): Promise<Record<string, unknown>> {
+export async function parseStructure<T = Record<string, unknown>>(
+  text: string,
+  validate?: Validator<T>
+): Promise<T> {
   const systemPrompt = `你是一名专业的简历解析专家。请从用户提供的简历文本中提取关键信息，并严格按照 JSON 格式返回。
 
 要求：
@@ -105,16 +128,18 @@ export async function parseStructure(text: string): Promise<Record<string, unkno
 
   // 用分隔符包裹用户内容，降低 prompt 注入风险
   const userPrompt = `以下是用 <resume_text> 标签包裹的简历文本，请提取结构化信息：\n<resume_text>\n${text}\n</resume_text>`
-  return callLLMJson(systemPrompt, userPrompt)
+  // 解析任务：低温度保证忠实抽取、不发挥
+  return callLLMJson<T>(systemPrompt, userPrompt, { model: PARSE_MODEL, temperature: 0.1, maxTokens: MAX_TOKENS }, validate)
 }
 
-export async function optimizeResume(
+// 构建优化任务的 system / user prompt（流式与非流式共用，避免逻辑漂移）
+function buildOptimizePrompts(
   resumeJson: string,
   jobDescription: string,
   tone: string,
   focus: string[],
   otherRequirements?: string
-): Promise<OptimizeResult> {
+): { systemPrompt: string; userPrompt: string } {
   const toneMap: Record<string, string> = {
     professional: '专业、正式',
     calm: '沉稳、低调',
@@ -159,5 +184,62 @@ ${otherRequirements ? `6. 其他要求：${otherRequirements}` : ''}
   // 用分隔符包裹 JD 与简历，降低 prompt 注入风险
   const userPrompt = `目标岗位 JD：\n<job_description>\n${jobDescription}\n</job_description>\n\n输入简历：\n<resume_json>\n${resumeJson}\n</resume_json>`
 
-  return callLLMJson<OptimizeResult>(systemPrompt, userPrompt)
+  return { systemPrompt, userPrompt }
+}
+
+export async function optimizeResume(
+  resumeJson: string,
+  jobDescription: string,
+  tone: string,
+  focus: string[],
+  otherRequirements?: string,
+  validate?: Validator<OptimizeResult>
+): Promise<OptimizeResult> {
+  const { systemPrompt, userPrompt } = buildOptimizePrompts(resumeJson, jobDescription, tone, focus, otherRequirements)
+  // 优化任务：略高温度让改写更有表现力
+  return callLLMJson<OptimizeResult>(systemPrompt, userPrompt, { model: OPTIMIZE_MODEL, temperature: 0.5, maxTokens: MAX_TOKENS }, validate)
+}
+
+// 流式优化：边生成边通过 onProgress 上报已接收字符数，便于前端展示进度。
+// 若流式结果解析/校验失败，回退到带自愈重试的非流式调用，保证可靠性。
+export async function optimizeResumeStream(
+  resumeJson: string,
+  jobDescription: string,
+  tone: string,
+  focus: string[],
+  otherRequirements: string | undefined,
+  onProgress: (chars: number) => void,
+  validate?: Validator<OptimizeResult>
+): Promise<OptimizeResult> {
+  const { systemPrompt, userPrompt } = buildOptimizePrompts(resumeJson, jobDescription, tone, focus, otherRequirements)
+
+  try {
+    const client = getOpenAIClient()
+    const stream = await client.chat.completions.create({
+      model: OPTIMIZE_MODEL,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.5,
+      max_tokens: MAX_TOKENS,
+      response_format: { type: 'json_object' },
+      stream: true,
+    })
+
+    let acc = ''
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content || ''
+      if (delta) {
+        acc += delta
+        onProgress(acc.length)
+      }
+    }
+
+    const raw = JSON.parse(stripCodeFence(acc))
+    return validate ? validate(raw) : (raw as OptimizeResult)
+  } catch (error) {
+    console.warn('流式优化失败，回退到非流式自愈调用：', error instanceof Error ? error.message : error)
+    return optimizeResume(resumeJson, jobDescription, tone, focus, otherRequirements, validate)
+  }
 }

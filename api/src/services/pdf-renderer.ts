@@ -29,7 +29,7 @@ function bulletList(items: string[], color: string, fontSize = '10px'): string {
 function renderSection(title: string, content: string, accentColor: string, fontFamily: string): string {
   return `
     <div style="margin-bottom:16px;">
-      <div style="font-size:13px;font-weight:600;color:${accentColor};margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid ${accentColor};font-family:${fontFamily};">
+      <div class="sec-head" style="font-size:13px;font-weight:600;color:${accentColor};margin-bottom:6px;padding-bottom:4px;border-bottom:2px solid ${accentColor};font-family:${fontFamily};">
         ${esc(title)}
       </div>
       ${content}
@@ -49,7 +49,7 @@ function generateMinimalistHtml(resume: Resume, tokens: typeof designTokens.mini
   }
   if (resume.experience.length > 0) {
     const exp = resume.experience.map(e => `
-      <div style="margin-bottom:10px;">
+      <div class="item" style="margin-bottom:10px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:11px;font-weight:600;color:${colors.text};font-family:${fonts.heading};">${esc(e.position)}</span>
           <span style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</span>
@@ -62,7 +62,7 @@ function generateMinimalistHtml(resume: Resume, tokens: typeof designTokens.mini
   }
   if (resume.education.length > 0) {
     const edu = resume.education.map(e => `
-      <div style="margin-bottom:8px;">
+      <div class="item" style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(e.school)}</div>
         <div style="font-size:10px;color:${colors.textMuted};">${esc(e.degree)}${e.field ? ` · ${esc(e.field)}` : ''}</div>
         <div style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</div>
@@ -72,7 +72,7 @@ function generateMinimalistHtml(resume: Resume, tokens: typeof designTokens.mini
   }
   if (resume.projects.length > 0) {
     const proj = resume.projects.map(p => `
-      <div style="margin-bottom:10px;">
+      <div class="item" style="margin-bottom:10px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(p.name)}${p.role ? ` · ${esc(p.role)}` : ''}</div>
         ${p.startDate ? `<div style="font-size:9px;color:${colors.textMuted};">${esc(p.startDate)} — ${esc(p.endDate || '至今')}</div>` : ''}
         ${bulletList(p.description, colors.textMuted)}
@@ -100,7 +100,7 @@ function generateTechHtml(resume: Resume, tokens: typeof designTokens.tech): str
   const contact = contactItems(resume.basicInfo)
 
   const sidebar = `
-    <div style="background:${colors.surface};padding:24px 16px;flex-shrink:0;">
+    <div style="background:${colors.surface};padding:24px 16px;width:32%;flex-shrink:0;box-sizing:border-box;">
       <h1 style="font-size:22px;font-weight:700;color:${colors.text};font-family:${fonts.heading};line-height:1.1;">${esc(resume.basicInfo.name)}</h1>
       <p style="font-size:11px;color:${colors.textMuted};margin-top:8px;font-family:${fonts.mono};">${esc(resume.basicInfo.title)}</p>
       <div style="margin-top:20px;">
@@ -130,7 +130,7 @@ function generateTechHtml(resume: Resume, tokens: typeof designTokens.tech): str
   }
   if (resume.experience.length > 0) {
     const exp = resume.experience.map(e => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:12px;font-weight:600;color:${colors.text};font-family:${fonts.heading};">${esc(e.position)}</span>
           <span style="font-size:9px;color:${colors.textMuted};font-family:${fonts.mono};">${esc(e.startDate)} — ${esc(e.endDate)}</span>
@@ -143,7 +143,7 @@ function generateTechHtml(resume: Resume, tokens: typeof designTokens.tech): str
   }
   if (resume.education.length > 0) {
     const edu = resume.education.map(e => `
-      <div style="margin-bottom:8px;">
+      <div class="item" style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(e.school)}</div>
         <div style="font-size:10px;color:${colors.textMuted};">${esc(e.degree)}${e.field ? ` · ${esc(e.field)}` : ''}</div>
         <div style="font-size:9px;color:${colors.textMuted};font-family:${fonts.mono};">${esc(e.startDate)} — ${esc(e.endDate)}</div>
@@ -153,7 +153,7 @@ function generateTechHtml(resume: Resume, tokens: typeof designTokens.tech): str
   }
   if (resume.projects.length > 0) {
     const proj = resume.projects.map(p => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(p.name)}</div>
         ${p.startDate ? `<div style="font-size:9px;color:${colors.textMuted};font-family:${fonts.mono};">${esc(p.startDate)} — ${esc(p.endDate || '至今')}</div>` : ''}
         ${bulletList(p.description, colors.textMuted, '9.5px')}
@@ -163,12 +163,12 @@ function generateTechHtml(resume: Resume, tokens: typeof designTokens.tech): str
   }
 
   const main = `
-    <div style="padding:24px 20px;flex:1;">
+    <div style="padding:24px 20px;flex:1;min-width:0;">
       ${mainSections.join('')}
     </div>
   `
 
-  return `<div style="display:flex;min-height:297mm;">${sidebar}${main}</div>`
+  return `<div style="display:flex;min-height:277mm;">${sidebar}${main}</div>`
 }
 
 function generateElegantHtml(resume: Resume, tokens: typeof designTokens.elegant): string {
@@ -194,7 +194,7 @@ function generateElegantHtml(resume: Resume, tokens: typeof designTokens.elegant
   const rightSections: string[] = []
   if (resume.experience.length > 0) {
     const exp = resume.experience.map(e => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:12px;font-weight:600;color:${colors.text};font-family:${fonts.heading};">${esc(e.position)}</span>
           <span style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</span>
@@ -207,7 +207,7 @@ function generateElegantHtml(resume: Resume, tokens: typeof designTokens.elegant
   }
   if (resume.education.length > 0) {
     const edu = resume.education.map(e => `
-      <div style="margin-bottom:8px;">
+      <div class="item" style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(e.school)}</div>
         <div style="font-size:10px;color:${colors.textMuted};">${esc(e.degree)}${e.field ? ` · ${esc(e.field)}` : ''}</div>
         <div style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</div>
@@ -217,7 +217,7 @@ function generateElegantHtml(resume: Resume, tokens: typeof designTokens.elegant
   }
   if (resume.projects.length > 0) {
     const proj = resume.projects.map(p => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(p.name)}</div>
         ${bulletList(p.description, colors.textMuted)}
       </div>
@@ -259,7 +259,7 @@ function generateBusinessHtml(resume: Resume, tokens: typeof designTokens.busine
   const rightSections: string[] = []
   if (resume.experience.length > 0) {
     const exp = resume.experience.map(e => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:12px;font-weight:600;color:${colors.text};font-family:${fonts.heading};">${esc(e.position)}</span>
           <span style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</span>
@@ -272,7 +272,7 @@ function generateBusinessHtml(resume: Resume, tokens: typeof designTokens.busine
   }
   if (resume.education.length > 0) {
     const edu = resume.education.map(e => `
-      <div style="margin-bottom:8px;">
+      <div class="item" style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(e.school)}</div>
         <div style="font-size:10px;color:${colors.textMuted};">${esc(e.degree)}${e.field ? ` · ${esc(e.field)}` : ''}</div>
         <div style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</div>
@@ -282,7 +282,7 @@ function generateBusinessHtml(resume: Resume, tokens: typeof designTokens.busine
   }
   if (resume.projects.length > 0) {
     const proj = resume.projects.map(p => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(p.name)}</div>
         ${bulletList(p.description, colors.textMuted)}
       </div>
@@ -305,7 +305,7 @@ function generateCreativeHtml(resume: Resume, tokens: typeof designTokens.creati
   const contact = contactItems(resume.basicInfo)
 
   const sidebar = `
-    <div style="background:${colors.surface};padding:24px 16px;flex-shrink:0;">
+    <div style="background:${colors.surface};padding:24px 16px;width:32%;flex-shrink:0;box-sizing:border-box;">
       <h1 style="font-size:22px;font-weight:700;color:${colors.textInverse};font-family:${fonts.heading};line-height:1.1;">${esc(resume.basicInfo.name)}</h1>
       <p style="font-size:11px;color:${colors.textInverse};opacity:0.8;margin-top:8px;">${esc(resume.basicInfo.title)}</p>
       <div style="margin-top:20px;">
@@ -327,7 +327,7 @@ function generateCreativeHtml(resume: Resume, tokens: typeof designTokens.creati
   }
   if (resume.experience.length > 0) {
     const exp = resume.experience.map(e => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:12px;font-weight:600;color:${colors.text};font-family:${fonts.heading};">${esc(e.position)}</span>
           <span style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</span>
@@ -340,7 +340,7 @@ function generateCreativeHtml(resume: Resume, tokens: typeof designTokens.creati
   }
   if (resume.education.length > 0) {
     const edu = resume.education.map(e => `
-      <div style="margin-bottom:8px;">
+      <div class="item" style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(e.school)}</div>
         <div style="font-size:10px;color:${colors.textMuted};">${esc(e.degree)}${e.field ? ` · ${esc(e.field)}` : ''}</div>
         <div style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</div>
@@ -350,7 +350,7 @@ function generateCreativeHtml(resume: Resume, tokens: typeof designTokens.creati
   }
   if (resume.projects.length > 0) {
     const proj = resume.projects.map(p => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(p.name)}</div>
         ${bulletList(p.description, colors.textMuted)}
       </div>
@@ -358,9 +358,9 @@ function generateCreativeHtml(resume: Resume, tokens: typeof designTokens.creati
     mainSections.push(renderSection('项目经验', proj, colors.accent, fonts.heading))
   }
 
-  const main = `<div style="padding:24px 20px;flex:1;">${mainSections.join('')}</div>`
+  const main = `<div style="padding:24px 20px;flex:1;min-width:0;">${mainSections.join('')}</div>`
 
-  return `<div style="display:flex;min-height:297mm;">${sidebar}${main}</div>`
+  return `<div style="display:flex;min-height:277mm;">${sidebar}${main}</div>`
 }
 
 function generateAcademicHtml(resume: Resume, tokens: typeof designTokens.academic): string {
@@ -387,7 +387,7 @@ function generateAcademicHtml(resume: Resume, tokens: typeof designTokens.academ
   const rightSections: string[] = []
   if (resume.experience.length > 0) {
     const exp = resume.experience.map(e => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="display:flex;justify-content:space-between;align-items:baseline;">
           <span style="font-size:12px;font-weight:600;color:${colors.text};font-family:${fonts.heading};">${esc(e.position)}</span>
           <span style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</span>
@@ -400,7 +400,7 @@ function generateAcademicHtml(resume: Resume, tokens: typeof designTokens.academ
   }
   if (resume.education.length > 0) {
     const edu = resume.education.map(e => `
-      <div style="margin-bottom:8px;">
+      <div class="item" style="margin-bottom:8px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(e.school)}</div>
         <div style="font-size:10px;color:${colors.textMuted};">${esc(e.degree)}${e.field ? ` · ${esc(e.field)}` : ''}</div>
         <div style="font-size:9px;color:${colors.textMuted};">${esc(e.startDate)} — ${esc(e.endDate)}</div>
@@ -410,7 +410,7 @@ function generateAcademicHtml(resume: Resume, tokens: typeof designTokens.academ
   }
   if (resume.projects.length > 0) {
     const proj = resume.projects.map(p => `
-      <div style="margin-bottom:12px;">
+      <div class="item" style="margin-bottom:12px;">
         <div style="font-size:11px;font-weight:600;color:${colors.text};">${esc(p.name)}</div>
         ${bulletList(p.description, colors.textMuted)}
       </div>
@@ -430,7 +430,7 @@ function generateAcademicHtml(resume: Resume, tokens: typeof designTokens.academ
 
 // ── HTML wrapper with base styles ──
 
-function wrapHtml(body: string, fonts: { body: string; heading: string }): string {
+function wrapHtml(body: string, fonts: { body: string; heading: string }, bg: string): string {
   return `
 <!DOCTYPE html>
 <html>
@@ -439,15 +439,18 @@ function wrapHtml(body: string, fonts: { body: string; heading: string }): strin
   <style>
     @page { size: A4; margin: 0; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { background: ${bg}; }
     body {
       font-family: ${fonts.body}, -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
-      background: white;
     }
     h1, h2, h3, h4 { font-family: ${fonts.heading}, ${fonts.body}, sans-serif; }
+    /* 分页时保护：单个条目不被从中间切断，章节标题不落在页尾 */
+    .item { break-inside: avoid; page-break-inside: avoid; }
+    .sec-head { break-after: avoid; page-break-after: avoid; }
   </style>
 </head>
-<body>${body}</body>
+<body><div style="position:fixed;inset:0;background:${bg};z-index:-1;"></div>${body}</body>
 </html>
   `.trim()
 }
@@ -467,7 +470,7 @@ export function generateHtmlForPdf(resume: Resume, template: TemplateStyle): str
   const tokens = designTokens[template] || designTokens.minimalist
   const generator = htmlGenerators[template] || htmlGenerators.minimalist
   const body = generator(resume, tokens)
-  return wrapHtml(body, tokens.fonts)
+  return wrapHtml(body, tokens.fonts, tokens.colors.bg)
 }
 
 // ── Puppeteer rendering ──

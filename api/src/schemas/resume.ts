@@ -76,3 +76,11 @@ export const exportRequestSchema = z.object({
 export const parseRequestSchema = z.object({
   text: z.string().min(1, '简历文本不能为空'),
 })
+
+// 把 Zod 错误压成简短可读的一句话，便于自愈时回灌给模型
+export function zodMessage(error: z.ZodError): string {
+  return error.errors
+    .slice(0, 6)
+    .map(e => `${e.path.join('.') || '根'}: ${e.message}`)
+    .join('; ')
+}

@@ -14,6 +14,16 @@ interface DownloadProps {
   onBackHome: () => void
 }
 
+// 用简历主人姓名（+职位）生成标准文件名，并清理文件系统非法字符
+function buildFileName(resume: { basicInfo: { name?: string; title?: string } }): string {
+  const clean = (s?: string) => (s || '').replace(/[\\/:*?"<>|]/g, '').trim()
+  const name = clean(resume.basicInfo.name)
+  const title = clean(resume.basicInfo.title)
+  if (name && title) return `${name}-${title}-简历`
+  if (name) return `${name}-简历`
+  return '我的简历'
+}
+
 export default function Download({ onRestart, onBackHome }: DownloadProps) {
   const { optimizedResume, selectedTemplate, atsReport } = useResumeStore()
   const [loading, setLoading] = useState(false)
@@ -47,7 +57,7 @@ export default function Download({ onRestart, onBackHome }: DownloadProps) {
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `resume_${template}.${format}`
+      link.download = `${buildFileName(resume)}.${format}`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)

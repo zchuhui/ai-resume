@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { OptimizeRequest, Resume, TemplateStyle } from '@/types/resume'
+import { OptimizeRequest, Resume, TemplateStyle, AtsReport } from '@/types/resume'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001/api'
 
@@ -25,6 +25,85 @@ export async function parseResume(text: string) {
 export async function optimizeResume(resume: Resume, request: OptimizeRequest) {
   const res = await api.post('/optimize', { resume, ...request })
   return res.data
+}
+
+export interface OptimizeStreamResult {
+  optimizedResume: Resume
+  changes: string[]
+  atsReport: AtsReport | null
+}
+
+// 流式优化：通过 SSE 边生成边回调进度（0-100），结束返回最终结果。
+export async function optimizeResumeStream(
+  resume: Resume,
+  request: OptimizeRequest,
+  onProgress?: (percent: number) => void
+): Promise<OptimizeStreamResult> {
+  const res = await fetch(`${API_BASE_URL}/optimize/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resume, ...request }),
+  })
+
+  if (!res.ok || !res.body) {
+    let msg = '简历优化失败，请稍后重试'
+    try {
+      const j = await res.json()
+      msg = j.error || msg
+    } catch {
+      // ignore
+    }
+    throw new Error(msg)
+  }
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let result: OptimizeStreamResult | null = null
+  let streamError: string | null = null
+
+  const handleEvent = (event: string, data: Record<string, unknown>) => {
+    if (event === 'progress' && typeof data.percent === 'number') {
+      onProgress?.(data.percent)
+    } else if (event === 'done') {
+      result = {
+        optimizedResume: data.optimizedResume as Resume,
+        changes: (data.changes as string[]) ?? [],
+        atsReport: (data.atsReport as AtsReport) ?? null,
+      }
+    } else if (event === 'error') {
+      streamError = (data.error as string) || '简历优化失败，请稍后重试'
+    }
+  }
+
+  // SSE 事件以空行（\n\n）分隔，逐块解析
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    let sep: number
+    while ((sep = buffer.indexOf('\n\n')) !== -1) {
+      const chunk = buffer.slice(0, sep)
+      buffer = buffer.slice(sep + 2)
+      let event = 'message'
+      let dataStr = ''
+      for (const line of chunk.split('\n')) {
+        if (line.startsWith('event:')) event = line.slice(6).trim()
+        else if (line.startsWith('data:')) dataStr += line.slice(5).trim()
+      }
+      if (!dataStr) continue
+      try {
+        handleEvent(event, JSON.parse(dataStr))
+      } catch {
+        // 忽略无法解析的事件
+      }
+    }
+  }
+
+  if (streamError) throw new Error(streamError)
+  if (!result) throw new Error('优化未返回结果，请稍后重试')
+  onProgress?.(100)
+  return result
 }
 
 export async function exportResume(resume: Resume, template: TemplateStyle, format: 'pdf' | 'docx') {
