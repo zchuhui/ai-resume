@@ -62,7 +62,7 @@ export function SectionHeader({ title, tokens, variant = 'underline', icon: Icon
         />
         <h2
           className="font-bold uppercase tracking-wider"
-          style={{ fontFamily: fonts.heading, fontSize: '3%', color: colors.text }}
+          style={{ fontFamily: fonts.heading, fontSize: '3cqw', color: colors.text }}
         >
           {title}
         </h2>
@@ -77,7 +77,7 @@ export function SectionHeader({ title, tokens, variant = 'underline', icon: Icon
           className="inline-block px-3 py-1 font-bold uppercase tracking-wider"
           style={{
             fontFamily: fonts.heading,
-            fontSize: '2.6%',
+            fontSize: '2.6cqw',
             background: colors.accent,
             color: colors.textInverse,
             borderRadius: decoration.borderRadius === 'large' ? '9999px' : '4px',
@@ -95,7 +95,7 @@ export function SectionHeader({ title, tokens, variant = 'underline', icon: Icon
         <Icon className="w-4 h-4" style={{ color: colors.accent }} />
         <h2
           className="font-semibold"
-          style={{ fontFamily: fonts.heading, fontSize: '3%', color: colors.text }}
+          style={{ fontFamily: fonts.heading, fontSize: '3cqw', color: colors.text }}
         >
           {title}
         </h2>
@@ -109,7 +109,7 @@ export function SectionHeader({ title, tokens, variant = 'underline', icon: Icon
         className="font-bold uppercase tracking-[0.15em] mb-3"
         style={{
           fontFamily: fonts.heading,
-          fontSize: '2.6%',
+          fontSize: '2.6cqw',
           color: colors.text,
           borderBottom: `1px solid ${colors.border}`,
           paddingBottom: '0.5rem',
@@ -125,7 +125,7 @@ export function SectionHeader({ title, tokens, variant = 'underline', icon: Icon
       className="font-bold uppercase tracking-[0.1em] pb-1 mb-3"
       style={{
         fontFamily: fonts.heading,
-        fontSize: '2.6%',
+        fontSize: '2.6cqw',
         color: colors.text,
         borderBottom: `2px solid ${colors.accent}`,
       }}
@@ -150,7 +150,7 @@ export function ContactBlock({ items, tokens, variant = 'inline' }: ContactBlock
         {items.map((item) => {
           const Icon = contactIconMap[item.key]
           return (
-            <div key={item.key} className="flex items-center gap-2" style={{ fontFamily: fonts.body, fontSize: '2.4%', color: colors.textMuted }}>
+            <div key={item.key} className="flex items-center gap-2" style={{ fontFamily: fonts.body, fontSize: '2.4cqw', color: colors.textMuted }}>
               <Icon className="w-3 h-3" style={{ color: colors.accent }} />
               <span className="truncate">{item.value}</span>
             </div>
@@ -172,7 +172,7 @@ export function ContactBlock({ items, tokens, variant = 'inline' }: ContactBlock
               style={{ background: colors.surface, color: colors.textMuted }}
             >
               <Icon className="w-3 h-3" style={{ color: colors.accent }} />
-              <span className="text-[2.4%] truncate" style={{ fontFamily: fonts.body }}>{item.value}</span>
+              <span className="truncate" style={{ fontFamily: fonts.body, fontSize: '2.4cqw' }}>{item.value}</span>
             </div>
           )
         })}
@@ -181,7 +181,7 @@ export function ContactBlock({ items, tokens, variant = 'inline' }: ContactBlock
   }
 
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1" style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+    <div className="flex flex-wrap gap-x-4 gap-y-1" style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
       {items.map((item) => {
         const Icon = contactIconMap[item.key]
         return (
@@ -214,7 +214,7 @@ export function SkillTag({ skill, tokens, index, variant = 'pill' }: SkillTagPro
         className="px-2.5 py-1 font-medium"
         style={{
           fontFamily: fonts.body,
-          fontSize: '2.6%',
+          fontSize: '2.6cqw',
           color: colors.text,
           border: `1px solid ${colors.border}`,
           borderRadius: '4px',
@@ -227,7 +227,7 @@ export function SkillTag({ skill, tokens, index, variant = 'pill' }: SkillTagPro
 
   if (variant === 'dot') {
     return (
-      <span className="flex items-center gap-2" style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+      <span className="flex items-center gap-2" style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
         <span className="w-2 h-2 rounded-full" style={{ background: accent }} />
         <span className="font-medium" style={{ color: colors.text }}>{skill}</span>
       </span>
@@ -240,7 +240,7 @@ export function SkillTag({ skill, tokens, index, variant = 'pill' }: SkillTagPro
         className="px-2 py-1 font-mono"
         style={{
           fontFamily: fonts.mono || fonts.body,
-          fontSize: '2.4%',
+          fontSize: '2.4cqw',
           background: colors.surface,
           color: colors.accent,
           borderRadius: '4px',
@@ -256,7 +256,7 @@ export function SkillTag({ skill, tokens, index, variant = 'pill' }: SkillTagPro
       className="px-3 py-1.5 font-medium text-white"
       style={{
         fontFamily: fonts.body,
-        fontSize: '2.4%',
+        fontSize: '2.4cqw',
         background: accent,
         borderRadius: '9999px',
       }}
@@ -270,27 +270,18 @@ export interface ProgressSkillProps {
   skill: string
   tokens: TemplateTokens
   index: number
-  max?: number
 }
 
-export function ProgressSkill({ skill, tokens, index, max = 10 }: ProgressSkillProps) {
+// 纯标签展示，不再使用按数组下标编造的假进度百分比，避免误导 HR。
+export function ProgressSkill({ skill, tokens, index }: ProgressSkillProps) {
   const { colors, fonts } = tokens
-  const width = 60 + ((index * 17) % 40)
   const accentPalette = [colors.accent, colors.accent2, colors.accent3]
   const accent = accentPalette[index % accentPalette.length]
 
   return (
-    <div>
-      <div className="flex justify-between mb-1" style={{ fontFamily: fonts.body, fontSize: '2.4%', color: colors.text }}>
-        <span>{skill}</span>
-        <span style={{ color: colors.textMuted }}>{Math.round((width / 100) * max)}/{max}</span>
-      </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: colors.border }}>
-        <div
-          className="h-full rounded-full"
-          style={{ width: `${width}%`, background: accent }}
-        />
-      </div>
+    <div className="flex items-center gap-2" style={{ fontFamily: fonts.mono || fonts.body, fontSize: '2.4cqw', color: colors.text }}>
+      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: accent }} />
+      <span>{skill}</span>
     </div>
   )
 }
@@ -321,14 +312,14 @@ export function TimelineItem({ title, subtitle, date, descriptions, tokens, inde
         />
       )}
       <div className="flex justify-between items-baseline">
-        <h3 className="font-semibold" style={{ fontFamily: fonts.heading, fontSize: '3.4%', color: colors.text }}>{title}</h3>
-        <span style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>{date}</span>
+        <h3 className="font-semibold" style={{ fontFamily: fonts.heading, fontSize: '3.4cqw', color: colors.text }}>{title}</h3>
+        <span style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>{date}</span>
       </div>
-      <p className="font-medium mt-0.5" style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.accent }}>{subtitle}</p>
+      <p className="font-medium mt-0.5" style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.accent }}>{subtitle}</p>
       {descriptions && descriptions.length > 0 && (
         <ul className="mt-2 space-y-1">
           {descriptions.map((desc, i) => (
-            <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted, lineHeight: '1.5' }}>{desc}</li>
+            <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted, lineHeight: '1.5' }}>{desc}</li>
           ))}
         </ul>
       )}

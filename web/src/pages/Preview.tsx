@@ -6,7 +6,7 @@ import { ResumePreview } from '@/components/resume/ResumePreview'
 import { Button } from '@/components/ui/button'
 import { PageTransition } from '@/components/PageTransition'
 import { LoadingOverlay } from '@/components/LoadingOverlay'
-import { ArrowLeft, Check, RefreshCw, X, Sparkles } from 'lucide-react'
+import { ArrowLeft, Check, RefreshCw, X, Sparkles, Target } from 'lucide-react'
 import type { TemplateStyle } from '@/types/resume'
 import { templateList } from '@/lib/template-config'
 import { cn } from '@/lib/utils'
@@ -18,7 +18,7 @@ interface PreviewProps {
 }
 
 export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) {
-  const { optimizedResume, selectedTemplate, setSelectedTemplate } = useResumeStore()
+  const { optimizedResume, selectedTemplate, setSelectedTemplate, atsReport } = useResumeStore()
   const [expanded, setExpanded] = useState<TemplateStyle | null>(null)
   const [regenerating, setRegenerating] = useState(false)
 
@@ -66,6 +66,15 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
           <p className="mt-2 text-slate-500">
             AI 已生成多种风格的简历，点击卡片选中，点击预览图放大查看
           </p>
+          {atsReport && (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-1.5 text-sm text-blue-700">
+              <Target className="w-4 h-4" />
+              岗位匹配度：<span className="font-semibold">{atsReport.matchScore ?? 0}</span> / 100
+              {(atsReport.missingKeywords ?? []).length > 0 && (
+                <span className="text-blue-400">· 仍缺 {atsReport.missingKeywords.length} 个关键词</span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 lg:gap-8">

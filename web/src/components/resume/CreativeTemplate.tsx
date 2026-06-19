@@ -38,12 +38,12 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
         <div className="relative z-10 mb-[8%]">
           <h1
             className="font-bold leading-none"
-            style={{ fontFamily: fonts.heading, fontSize: '8%', color: colors.textInverse }}
+            style={{ fontFamily: fonts.heading, fontSize: '8cqw', color: colors.textInverse }}
           >
             {basicInfo.name}
           </h1>
           <div className="w-10 h-1 mt-4" style={{ background: colors.accent }} />
-          <p className="mt-3" style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textInverse, opacity: 0.8 }}>
+          <p className="mt-3" style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textInverse, opacity: 0.8 }}>
             {basicInfo.title}
           </p>
         </div>
@@ -55,7 +55,7 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
         {summary && (
           <div className="relative z-10 mb-[8%]">
             <SectionHeader title={sectionTitles.summary} tokens={tokens} variant="pill" />
-            <p style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textInverse, opacity: 0.85, lineHeight: '1.7' }}>
+            <p style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textInverse, opacity: 0.85, lineHeight: '1.7' }}>
               {summary}
             </p>
           </div>
@@ -77,7 +77,7 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
             <SectionHeader title={sectionTitles.languages} tokens={tokens} variant="pill" />
             <div className="space-y-1.5">
               {languages.map((item, index) => (
-                <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textInverse, opacity: 0.8 }}>
+                <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textInverse, opacity: 0.8 }}>
                   <span style={{ fontWeight: 600, color: colors.textInverse }}>{item.language}</span>
                   <span style={{ color: colors.accent, margin: '0 0.5rem' }}>·</span>
                   {item.proficiency}
@@ -92,7 +92,7 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
             <SectionHeader title={sectionTitles.certifications} tokens={tokens} variant="pill" />
             <div className="space-y-1.5">
               {certifications.map((item, index) => (
-                <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textInverse, opacity: 0.8 }}>
+                <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textInverse, opacity: 0.8 }}>
                   <span className="inline-block w-2 h-2 rounded-full mr-2" style={{ background: colors.accent }} />
                   {item.name}
                   {item.issuer && <span style={{ opacity: 0.6, marginLeft: '0.4rem' }}>· {item.issuer}</span>}
@@ -112,19 +112,19 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
               {experience.map((item, index) => (
                 <div key={index}>
                   <div className="flex justify-between items-baseline">
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4%', color: colors.text, fontWeight: 700 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4cqw', color: colors.text, fontWeight: 700 }}>
                       {item.position}
                     </h3>
-                    <span style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+                    <span style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
                       {item.startDate} - {item.endDate}
                     </span>
                   </div>
-                  <p style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.accent, fontWeight: 600, marginTop: '0.25rem' }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.accent, fontWeight: 600, marginTop: '0.25rem' }}>
                     {item.company}{item.location ? ` · ${item.location}` : ''}
                   </p>
                   <ul className="mt-2 space-y-1">
                     {item.description.map((desc, i) => (
-                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted, lineHeight: '1.5' }}>
+                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted, lineHeight: '1.5' }}>
                         {desc}
                       </li>
                     ))}
@@ -142,14 +142,14 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
               {education.map((item, index) => (
                 <div key={index} className="flex justify-between items-baseline">
                   <div>
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2%', color: colors.text, fontWeight: 700 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2cqw', color: colors.text, fontWeight: 700 }}>
                       {item.school}
                     </h3>
-                    <p style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                    <p style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                       {item.degree}{item.field ? ` · ${item.field}` : ''}
                     </p>
                   </div>
-                  <span style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+                  <span style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
                     {item.startDate} - {item.endDate}
                   </span>
                 </div>
@@ -165,19 +165,19 @@ export function CreativeTemplate({ resume, className }: CreativeTemplateProps) {
               {projects.map((item, index) => (
                 <Card key={index} tokens={tokens}>
                   <div className="flex justify-between items-baseline">
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3%', color: colors.text, fontWeight: 700 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3cqw', color: colors.text, fontWeight: 700 }}>
                       {item.name}
                     </h3>
-                    <span style={{ fontFamily: fonts.body, fontSize: '2.4%', color: colors.textMuted }}>
+                    <span style={{ fontFamily: fonts.body, fontSize: '2.4cqw', color: colors.textMuted }}>
                       {item.startDate} - {item.endDate}
                     </span>
                   </div>
-                  <p style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.accent2, fontWeight: 600, marginTop: '0.25rem' }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.accent2, fontWeight: 600, marginTop: '0.25rem' }}>
                     {item.role}
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {item.description.map((desc, i) => (
-                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted, lineHeight: '1.5' }}>
+                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted, lineHeight: '1.5' }}>
                         {desc}
                       </li>
                     ))}

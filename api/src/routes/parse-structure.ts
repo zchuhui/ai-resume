@@ -18,23 +18,22 @@ router.post('/', rateLimit, async (req, res) => {
     }
 
     const { text } = parsed.data
-    const resultJson = await parseStructure(text)
+    const raw = await parseStructure(text)
 
     let resume: Resume
-    try {
-      const raw = JSON.parse(resultJson)
-      const validated = resumeSchema.safeParse(raw)
-      if (validated.success) {
-        resume = validated.data as Resume
-      } else {
-        // Attempt fallback: use raw data with defaults
+    const validated = resumeSchema.safeParse(raw)
+    if (validated.success) {
+      resume = validated.data as Resume
+    } else {
+      // Attempt fallback: use raw data with defaults
+      try {
         resume = resumeSchema.parse({ ...raw })
+      } catch {
+        return res.status(500).json({
+          success: false,
+          error: 'AI 返回的简历结构校验失败，请稍后重试',
+        })
       }
-    } catch {
-      return res.status(500).json({
-        success: false,
-        error: 'AI 返回的 JSON 格式无效，请稍后重试',
-      })
     }
 
     res.json({ success: true, data: { resume } })

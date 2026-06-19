@@ -24,13 +24,13 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
       <header className="px-[10%] pt-[10%] pb-[4%] text-center">
         <h1
           className="font-bold tracking-tight leading-none"
-          style={{ fontFamily: fonts.heading, fontSize: '10%', color: colors.text }}
+          style={{ fontFamily: fonts.heading, fontSize: '10cqw', color: colors.text }}
         >
           {basicInfo.name}
         </h1>
         <p
           className="mt-4"
-          style={{ fontFamily: fonts.body, fontSize: '3.2%', color: colors.textMuted, letterSpacing: '0.05em' }}
+          style={{ fontFamily: fonts.body, fontSize: '3.2cqw', color: colors.textMuted, letterSpacing: '0.05em' }}
         >
           {basicInfo.title}
         </p>
@@ -46,7 +46,7 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
         {summary && (
           <section className="mb-[6%]">
             <SectionHeader title={sectionTitles.summary} tokens={tokens} variant="minimal" />
-            <p style={{ fontFamily: fonts.body, fontSize: '3.2%', color: colors.textMuted, lineHeight: '1.7' }}>
+            <p style={{ fontFamily: fonts.body, fontSize: '3.2cqw', color: colors.textMuted, lineHeight: '1.7' }}>
               {summary}
             </p>
           </section>
@@ -59,19 +59,19 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
               {experience.map((item, index) => (
                 <div key={index}>
                   <div className="flex justify-between items-baseline">
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.6%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.6cqw', color: colors.text, fontWeight: 600 }}>
                       {item.position}
                     </h3>
-                    <span style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                    <span style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                       {item.startDate} - {item.endDate}
                     </span>
                   </div>
-                  <p style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.textMuted, marginTop: '0.25rem' }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.textMuted, marginTop: '0.25rem' }}>
                     {item.company}{item.location ? ` · ${item.location}` : ''}
                   </p>
                   <ul className="mt-2 space-y-1">
                     {item.description.map((desc, i) => (
-                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.textMuted, lineHeight: '1.6' }}>
+                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.textMuted, lineHeight: '1.6' }}>
                         {desc}
                       </li>
                     ))}
@@ -89,14 +89,14 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
               {education.map((item, index) => (
                 <div key={index} className="flex justify-between items-baseline">
                   <div>
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4cqw', color: colors.text, fontWeight: 600 }}>
                       {item.school}
                     </h3>
-                    <p style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.textMuted }}>
+                    <p style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.textMuted }}>
                       {item.degree}{item.field ? ` · ${item.field}` : ''}
                     </p>
                   </div>
-                  <span style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                  <span style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                     {item.startDate} - {item.endDate}
                   </span>
                 </div>
@@ -112,19 +112,19 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
               {projects.map((item, index) => (
                 <div key={index}>
                   <div className="flex justify-between items-baseline">
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4cqw', color: colors.text, fontWeight: 600 }}>
                       {item.name}
                     </h3>
-                    <span style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                    <span style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                       {item.startDate} - {item.endDate}
                     </span>
                   </div>
-                  <p style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.textMuted, marginTop: '0.25rem' }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.textMuted, marginTop: '0.25rem' }}>
                     {item.role}
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {item.description.map((desc, i) => (
-                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.textMuted, lineHeight: '1.6' }}>
+                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.textMuted, lineHeight: '1.6' }}>
                         {desc}
                       </li>
                     ))}
@@ -145,7 +145,7 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
                   className="px-3 py-1"
                   style={{
                     fontFamily: fonts.body,
-                    fontSize: '2.8%',
+                    fontSize: '2.8cqw',
                     color: colors.text,
                     background: colors.highlight,
                     borderRadius: '4px',
@@ -164,7 +164,7 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
               <SectionHeader title={sectionTitles.certifications} tokens={tokens} variant="minimal" />
               <div className="space-y-1">
                 {certifications.map((item, index) => (
-                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                     {item.name}{item.issuer ? ` · ${item.issuer}` : ''}
                   </div>
                 ))}
@@ -176,7 +176,7 @@ export function MinimalistTemplate({ resume, className }: MinimalistTemplateProp
               <SectionHeader title={sectionTitles.languages} tokens={tokens} variant="minimal" />
               <div className="space-y-1">
                 {languages.map((item, index) => (
-                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                     {item.language} · {item.proficiency}
                   </div>
                 ))}

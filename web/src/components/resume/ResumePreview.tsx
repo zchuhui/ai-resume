@@ -31,6 +31,7 @@ export function ResumePreview({ resume, style, className }: ResumePreviewProps) 
         'w-full h-full aspect-[1/1.414] overflow-hidden bg-white shadow-sm',
         className
       )}
+      style={{ containerType: 'inline-size' }}
     >
       <Template resume={resume} />
     </div>

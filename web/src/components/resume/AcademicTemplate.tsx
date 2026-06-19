@@ -27,11 +27,11 @@ export function AcademicTemplate({ resume, className }: AcademicTemplateProps) {
       >
         <h1
           className="font-bold leading-tight"
-          style={{ fontFamily: fonts.heading, fontSize: '7%', color: colors.text }}
+          style={{ fontFamily: fonts.heading, fontSize: '7cqw', color: colors.text }}
         >
           {basicInfo.name}
         </h1>
-        <p className="mt-2" style={{ fontFamily: fonts.body, fontSize: '3.2%', color: colors.textMuted }}>
+        <p className="mt-2" style={{ fontFamily: fonts.body, fontSize: '3.2cqw', color: colors.textMuted }}>
           {basicInfo.title}
         </p>
         <div className="mt-3">
@@ -48,13 +48,13 @@ export function AcademicTemplate({ resume, className }: AcademicTemplateProps) {
               <div className="space-y-[3%]">
                 {education.map((item, index) => (
                   <div key={index}>
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2cqw', color: colors.text, fontWeight: 600 }}>
                       {item.school}
                     </h3>
-                    <p style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                    <p style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                       {item.degree}{item.field ? ` · ${item.field}` : ''}
                     </p>
-                    <p style={{ fontFamily: fonts.body, fontSize: '2.4%', color: colors.accent2, marginTop: '0.25rem' }}>
+                    <p style={{ fontFamily: fonts.body, fontSize: '2.4cqw', color: colors.accent2, marginTop: '0.25rem' }}>
                       {item.startDate} - {item.endDate}
                     </p>
                   </div>
@@ -79,7 +79,7 @@ export function AcademicTemplate({ resume, className }: AcademicTemplateProps) {
               <SectionHeader title={sectionTitles.languages} tokens={tokens} variant="underline" />
               <div className="space-y-1">
                 {languages.map((item, index) => (
-                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
                     <span style={{ color: colors.text, fontWeight: 600 }}>{item.language}</span>
                     <span style={{ color: colors.accent2, margin: '0 0.4rem' }}>·</span>
                     {item.proficiency}
@@ -94,7 +94,7 @@ export function AcademicTemplate({ resume, className }: AcademicTemplateProps) {
               <SectionHeader title={sectionTitles.certifications} tokens={tokens} variant="underline" />
               <div className="space-y-1">
                 {certifications.map((item, index) => (
-                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+                  <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
                     {item.name}
                     {item.issuer && <span style={{ color: colors.accent2, marginLeft: '0.4rem' }}>· {item.issuer}</span>}
                   </div>
@@ -110,7 +110,7 @@ export function AcademicTemplate({ resume, className }: AcademicTemplateProps) {
               <SectionHeader title={sectionTitles.summary} tokens={tokens} variant="underline" />
               <p
                 className="italic"
-                style={{ fontFamily: fonts.body, fontSize: '3%', color: colors.textMuted, lineHeight: '1.7', borderLeft: `2px solid ${colors.accent}`, paddingLeft: '3%' }}
+                style={{ fontFamily: fonts.body, fontSize: '3cqw', color: colors.textMuted, lineHeight: '1.7', borderLeft: `2px solid ${colors.accent}`, paddingLeft: '3%' }}
               >
                 {summary}
               </p>
@@ -144,19 +144,19 @@ export function AcademicTemplate({ resume, className }: AcademicTemplateProps) {
                 {projects.map((item, index) => (
                   <div key={index}>
                     <div className="flex justify-between items-baseline">
-                      <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2%', color: colors.text, fontWeight: 600 }}>
+                      <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2cqw', color: colors.text, fontWeight: 600 }}>
                         {item.name}
                       </h3>
-                      <span style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+                      <span style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
                         {item.startDate} - {item.endDate}
                       </span>
                     </div>
-                    <p style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.accent, fontWeight: 500, marginTop: '0.25rem' }}>
+                    <p style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.accent, fontWeight: 500, marginTop: '0.25rem' }}>
                       {item.role}
                     </p>
                     <ul className="mt-1.5 space-y-1">
                       {item.description.map((desc, i) => (
-                        <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted, lineHeight: '1.5' }}>
+                        <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted, lineHeight: '1.5' }}>
                           {desc}
                         </li>
                       ))}

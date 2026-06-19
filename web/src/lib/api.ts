@@ -31,7 +31,7 @@ export async function exportResume(resume: Resume, template: TemplateStyle, form
   const res = await api.post(
     '/export',
     { resume, template, format },
-    { responseType: 'blob' }
+    { responseType: 'blob', timeout: format === 'pdf' ? 120000 : 60000 }
   )
   return res.data
 }

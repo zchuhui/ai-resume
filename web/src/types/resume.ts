@@ -62,4 +62,12 @@ export interface OptimizeRequest {
   otherRequirements?: string
 }
 
-export type TemplateStyle = 'minimalist' | 'tech' | 'elegant' | 'business' | 'creative' | 'academic'
+// TemplateStyle 单一数据源在 shared/design-tokens.ts
+export type { TemplateStyle } from '@shared/design-tokens'
+
+// ATS 匹配报告（优化接口返回）
+export interface AtsReport {
+  matchScore: number // 0-100
+  matchedKeywords: string[]
+  missingKeywords: string[]
+}

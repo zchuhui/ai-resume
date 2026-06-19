@@ -1,5 +1,6 @@
 import { Router } from 'express'
-import { generateDocx, generateHtmlForPdf } from '../services/export'
+import { generateDocx } from '../services/export'
+import { renderResumeToPdf } from '../services/pdf-renderer'
 import { exportRequestSchema } from '../schemas/resume'
 
 const router = Router()
@@ -17,18 +18,23 @@ router.post('/', async (req, res) => {
 
     const { resume, template, format } = parsed.data
 
-    if (format === 'docx') {
+    if (format === 'pdf') {
+      // PDF：Puppeteer 渲染 HTML 模板为矢量 PDF（文本可选、ATS 可解析）
+      const buffer = await renderResumeToPdf(resume, template)
+      res.setHeader('Content-Type', 'application/pdf')
+      res.setHeader('Content-Disposition', `attachment; filename="resume-${template}.pdf"`)
+      res.send(buffer)
+    } else if (format === 'docx') {
+      // Word：docx 库生成
       const buffer = await generateDocx(resume, template)
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
       res.setHeader('Content-Disposition', `attachment; filename="resume-${template}.docx"`)
       res.send(buffer)
     } else {
-      // PDF: return HTML that the frontend can convert using html2canvas + jsPDF
-      // Or return the docx and let the client handle conversion
-      const html = generateHtmlForPdf(resume, template)
-      res.setHeader('Content-Type', 'text/html')
-      res.setHeader('Content-Disposition', `inline; filename="resume-${template}.html"`)
-      res.send(html)
+      return res.status(400).json({
+        success: false,
+        error: '不支持的导出格式，仅支持 pdf 和 docx',
+      })
     }
   } catch (err: any) {
     console.error('[Export Error]', err.message)

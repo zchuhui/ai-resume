@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+/* 字体已通过 @fontsource 自托管引入（见 main.tsx），无需 Google Fonts @import */
 
 @tailwind base;
 @tailwind components;

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Resume, TemplateStyle, OptimizeRequest } from '@/types/resume'
+import { Resume, TemplateStyle, OptimizeRequest, AtsReport } from '@/types/resume'
 
 interface ResumeState {
   rawText: string
@@ -8,11 +8,13 @@ interface ResumeState {
   optimizedResume: Resume | null
   optimizeRequest: OptimizeRequest | null
   selectedTemplate: TemplateStyle | null
+  atsReport: AtsReport | null
   setRawText: (text: string) => void
   setParsedResume: (resume: Resume) => void
   setOptimizedResume: (resume: Resume) => void
   setOptimizeRequest: (request: OptimizeRequest) => void
   setSelectedTemplate: (template: TemplateStyle) => void
+  setAtsReport: (report: AtsReport | null) => void
   reset: () => void
 }
 
@@ -22,6 +24,7 @@ const initialState = {
   optimizedResume: null,
   optimizeRequest: null,
   selectedTemplate: null,
+  atsReport: null,
 }
 
 export const useResumeStore = create<ResumeState>()(
@@ -33,6 +36,7 @@ export const useResumeStore = create<ResumeState>()(
       setOptimizedResume: (resume) => set({ optimizedResume: resume, selectedTemplate: null }),
       setOptimizeRequest: (request) => set({ optimizeRequest: request }),
       setSelectedTemplate: (template) => set({ selectedTemplate: template }),
+      setAtsReport: (report) => set({ atsReport: report }),
       reset: () => set(initialState),
     }),
     {
@@ -41,6 +45,7 @@ export const useResumeStore = create<ResumeState>()(
         optimizedResume: state.optimizedResume,
         optimizeRequest: state.optimizeRequest,
         selectedTemplate: state.selectedTemplate,
+        atsReport: state.atsReport,
       }),
     }
   )

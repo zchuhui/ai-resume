@@ -40,7 +40,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const { setRawText, setParsedResume, setOptimizedResume, setOptimizeRequest } = useResumeStore()
+  const { setRawText, setParsedResume, setOptimizedResume, setOptimizeRequest, setAtsReport } = useResumeStore()
 
   const toggleFocus = (value: OptimizeRequest['focus'][number]) => {
     setFocus((prev) =>
@@ -98,6 +98,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
         throw new Error('简历优化失败，请稍后重试')
       }
       setOptimizedResume(optimizedResume)
+      setAtsReport(optimizeRes.data?.atsReport ?? null)
 
       onNext()
     } catch (err) {

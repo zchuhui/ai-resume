@@ -28,12 +28,12 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
         <div className="mb-[8%]">
           <h1
             className="font-bold leading-tight"
-            style={{ fontFamily: fonts.heading, fontSize: '5.5%', color: colors.text }}
+            style={{ fontFamily: fonts.heading, fontSize: '5.5cqw', color: colors.text }}
           >
             {basicInfo.name}
           </h1>
           <div className="h-1 mt-2 rounded-full" style={{ width: '25%', background: 'linear-gradient(90deg, ' + colors.accent + ', ' + colors.accent2 + ')' }} />
-          <p className="mt-3" style={{ fontFamily: fonts.mono, fontSize: '2.6%', color: colors.textMuted }}>
+          <p className="mt-3" style={{ fontFamily: fonts.mono, fontSize: '2.6cqw', color: colors.textMuted }}>
             {basicInfo.title}
           </p>
         </div>
@@ -58,7 +58,7 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
             <SectionHeader title={sectionTitles.languages} tokens={tokens} variant="bar" />
             <div className="space-y-1.5">
               {languages.map((item, index) => (
-                <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted }}>
+                <div key={index} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted }}>
                   {item.language} · <span style={{ color: colors.text }}>{item.proficiency}</span>
                 </div>
               ))}
@@ -71,7 +71,7 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
             <SectionHeader title={sectionTitles.certifications} tokens={tokens} variant="bar" />
             <div className="space-y-1.5">
               {certifications.map((item, index) => (
-                <div key={index} style={{ fontFamily: fonts.mono, fontSize: '2.4%', color: colors.textMuted }}>
+                <div key={index} style={{ fontFamily: fonts.mono, fontSize: '2.4cqw', color: colors.textMuted }}>
                   {item.name}
                 </div>
               ))}
@@ -89,7 +89,7 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
               className="pl-3 border-l-2"
               style={{
                 fontFamily: fonts.body,
-                fontSize: '3%',
+                fontSize: '3cqw',
                 color: colors.textMuted,
                 lineHeight: '1.7',
                 borderColor: colors.accent,
@@ -111,19 +111,19 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
                     style={{ background: colors.accent, boxShadow: `0 0 0 4px ${colors.bg}` }}
                   />
                   <div className="flex justify-between items-baseline">
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.4cqw', color: colors.text, fontWeight: 600 }}>
                       {item.position}
                     </h3>
-                    <span style={{ fontFamily: fonts.mono, fontSize: '2.6%', color: colors.textMuted }}>
+                    <span style={{ fontFamily: fonts.mono, fontSize: '2.6cqw', color: colors.textMuted }}>
                       {item.startDate} - {item.endDate}
                     </span>
                   </div>
-                  <p style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.accent, fontWeight: 500, marginTop: '0.25rem' }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.accent, fontWeight: 500, marginTop: '0.25rem' }}>
                     {item.company}{item.location ? ` · ${item.location}` : ''}
                   </p>
                   <ul className="mt-2 space-y-1">
                     {item.description.map((desc, i) => (
-                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted, lineHeight: '1.5' }}>
+                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted, lineHeight: '1.5' }}>
                         {desc}
                       </li>
                     ))}
@@ -141,14 +141,14 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
               {education.map((item, index) => (
                 <div key={index} className="flex justify-between items-baseline">
                   <div>
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3.2cqw', color: colors.text, fontWeight: 600 }}>
                       {item.school}
                     </h3>
-                    <p style={{ fontFamily: fonts.body, fontSize: '2.8%', color: colors.textMuted }}>
+                    <p style={{ fontFamily: fonts.body, fontSize: '2.8cqw', color: colors.textMuted }}>
                       {item.degree}{item.field ? ` · ${item.field}` : ''}
                     </p>
                   </div>
-                  <span style={{ fontFamily: fonts.mono, fontSize: '2.6%', color: colors.textMuted }}>
+                  <span style={{ fontFamily: fonts.mono, fontSize: '2.6cqw', color: colors.textMuted }}>
                     {item.startDate} - {item.endDate}
                   </span>
                 </div>
@@ -164,19 +164,19 @@ export function TechTemplate({ resume, className }: TechTemplateProps) {
               {projects.map((item, index) => (
                 <Card key={index} tokens={tokens}>
                   <div className="flex justify-between items-baseline">
-                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3%', color: colors.text, fontWeight: 600 }}>
+                    <h3 style={{ fontFamily: fonts.heading, fontSize: '3cqw', color: colors.text, fontWeight: 600 }}>
                       {item.name}
                     </h3>
-                    <span style={{ fontFamily: fonts.mono, fontSize: '2.4%', color: colors.textMuted }}>
+                    <span style={{ fontFamily: fonts.mono, fontSize: '2.4cqw', color: colors.textMuted }}>
                       {item.startDate} - {item.endDate}
                     </span>
                   </div>
-                  <p style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.accent, fontWeight: 500, marginTop: '0.25rem' }}>
+                  <p style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.accent, fontWeight: 500, marginTop: '0.25rem' }}>
                     {item.role}
                   </p>
                   <ul className="mt-1.5 space-y-1">
                     {item.description.map((desc, i) => (
-                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.6%', color: colors.textMuted, lineHeight: '1.5' }}>
+                      <li key={i} style={{ fontFamily: fonts.body, fontSize: '2.6cqw', color: colors.textMuted, lineHeight: '1.5' }}>
                         {desc}
                       </li>
                     ))}

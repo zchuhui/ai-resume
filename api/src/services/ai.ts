@@ -3,6 +3,18 @@ import OpenAI from 'openai'
 const MODEL = process.env.AI_MODEL || 'gpt-4o-mini'
 const TIMEOUT_MS = 30000
 
+export interface AtsReport {
+  matchScore: number // 0-100
+  matchedKeywords: string[]
+  missingKeywords: string[]
+}
+
+export interface OptimizeResult {
+  resume: Record<string, unknown>
+  changes: string[]
+  atsReport?: AtsReport
+}
+
 function getOpenAIClient(): OpenAI {
   const apiKey = process.env.AI_API_KEY || process.env.OPENAI_API_KEY
   if (!apiKey || apiKey === 'your_api_key') {
@@ -14,37 +26,62 @@ function getOpenAIClient(): OpenAI {
   })
 }
 
-async function callLLM(systemPrompt: string, userPrompt: string, retries = 1): Promise<string> {
-  const client = getOpenAIClient()
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      const response = await client.chat.completions.create(
-        {
-          model: MODEL,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-          temperature: 0.3,
-          response_format: { type: 'json_object' },
-        },
-        { timeout: TIMEOUT_MS }
-      )
-      const content = response.choices[0]?.message?.content
-      if (!content) throw new Error('Empty response from LLM')
-      return content
-    } catch (error) {
-      if (attempt === retries) {
-        console.error(`LLM call failed after ${retries + 1} attempts:`, error)
-        throw error
-      }
-      console.warn(`LLM call attempt ${attempt + 1} failed, retrying...`)
-    }
+// 去掉模型偶尔包裹的 ```json ... ``` 代码块，保证 JSON.parse 可用
+function stripCodeFence(content: string): string {
+  const trimmed = content.trim()
+  if (trimmed.startsWith('```')) {
+    const end = trimmed.lastIndexOf('```')
+    const inner = trimmed.slice(trimmed.indexOf('\n') + 1, end)
+    return inner.trim()
   }
-  throw new Error('Unreachable')
+  return trimmed
 }
 
-export async function parseStructure(text: string): Promise<string> {
+// 单次网络调用，出错即抛
+async function rawChat(systemPrompt: string, userPrompt: string): Promise<string> {
+  const client = getOpenAIClient()
+  const response = await client.chat.completions.create(
+    {
+      model: MODEL,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      temperature: 0.3,
+      response_format: { type: 'json_object' },
+    },
+    { timeout: TIMEOUT_MS }
+  )
+  const content = response.choices[0]?.message?.content
+  if (!content) throw new Error('Empty response from LLM')
+  return content
+}
+
+// 统一的重试圈：网络异常与 JSON 解析失败都会触发重试。
+// 重试时回灌提示，要求模型只输出纯 JSON，从源头降低坏 JSON 概率。
+async function callLLMJson<T>(systemPrompt: string, userPrompt: string, retries = 2): Promise<T> {
+  let lastError: unknown
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      const hint =
+        attempt > 0
+          ? '\n\n【重要】上一次返回的内容不是合法 JSON，请只输出纯 JSON 对象，不要包含 ``` 代码块或任何解释文字。'
+          : ''
+      const content = await rawChat(systemPrompt, userPrompt + hint)
+      return JSON.parse(stripCodeFence(content)) as T
+    } catch (error) {
+      lastError = error
+      if (attempt === retries) {
+        console.error(`LLM/JSON call failed after ${retries + 1} attempts:`, error)
+        throw error
+      }
+      console.warn(`LLM/JSON attempt ${attempt + 1} failed, retrying...`, error instanceof Error ? error.message : error)
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error('LLM 调用失败')
+}
+
+export async function parseStructure(text: string): Promise<Record<string, unknown>> {
   const systemPrompt = `你是一名专业的简历解析专家。请从用户提供的简历文本中提取关键信息，并严格按照 JSON 格式返回。
 
 要求：
@@ -66,7 +103,9 @@ export async function parseStructure(text: string): Promise<string> {
   "languages": [{ "language": "", "proficiency": "" }]
 }`
 
-  return callLLM(systemPrompt, `简历文本：\n${text}`)
+  // 用分隔符包裹用户内容，降低 prompt 注入风险
+  const userPrompt = `以下是用 <resume_text> 标签包裹的简历文本，请提取结构化信息：\n<resume_text>\n${text}\n</resume_text>`
+  return callLLMJson(systemPrompt, userPrompt)
 }
 
 export async function optimizeResume(
@@ -75,7 +114,7 @@ export async function optimizeResume(
   tone: string,
   focus: string[],
   otherRequirements?: string
-): Promise<string> {
+): Promise<OptimizeResult> {
   const toneMap: Record<string, string> = {
     professional: '专业、正式',
     calm: '沉稳、低调',
@@ -103,12 +142,22 @@ export async function optimizeResume(
 ${otherRequirements ? `6. 其他要求：${otherRequirements}` : ''}
 
 输出要求：
-1. 严格返回 JSON 格式，结构与输入 Resume 一致
+1. 严格返回 JSON 格式，结构如下：
+{
+  "resume": { /* 与输入 Resume 结构一致，为优化后的简历 */ },
+  "changes": [ "本次关键改动说明1", "改动说明2" ],
+  "atsReport": {
+    "matchScore": 0-100 的整数,表示优化后简历与岗位 JD 的关键词匹配度,
+    "matchedKeywords": [ "简历中已包含的 JD 关键词" ],
+    "missingKeywords": [ "JD 中要求但简历仍缺失的关键词" ]
+  }
+}
 2. 不要添加输入中没有的虚假信息
 3. 自我评价（summary）需要重新撰写，突出与岗位的匹配度
-4. 同时返回 changes 数组，列出你做的关键改动说明`
+4. atsReport.matchScore 必须是基于关键词比对得出的真实评估，不要编造`
 
-  const userPrompt = `目标岗位 JD：\n${jobDescription}\n\n输入简历：\n${resumeJson}`
+  // 用分隔符包裹 JD 与简历，降低 prompt 注入风险
+  const userPrompt = `目标岗位 JD：\n<job_description>\n${jobDescription}\n</job_description>\n\n输入简历：\n<resume_json>\n${resumeJson}\n</resume_json>`
 
-  return callLLM(systemPrompt, userPrompt)
+  return callLLMJson<OptimizeResult>(systemPrompt, userPrompt)
 }

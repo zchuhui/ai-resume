@@ -1,2 +1,9 @@
 
 .codebuddy
+.docs
+
+# 共享模块的编译产物（源码只保留 .ts，编译输出在各自 dist/）
+shared/*.js
+shared/*.js.map
+shared/*.d.ts
+shared/*.d.ts.map
