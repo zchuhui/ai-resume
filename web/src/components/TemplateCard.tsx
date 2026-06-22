@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { templateRegistry } from '@/lib/template-config'
+import { templateRegistry, strategyLabels, type TemplateStrategy } from '@/lib/template-config'
 import type { TemplateStyle } from '@/types/resume'
 import type { ReactNode } from 'react'
 
@@ -14,6 +14,12 @@ interface TemplateCardProps {
   children: ReactNode
 }
 
+const strategyBadgeClass: Record<TemplateStrategy, string> = {
+  application: 'bg-emerald-50 text-emerald-600 border-emerald-200',
+  showcase: 'bg-violet-50 text-violet-600 border-violet-200',
+  special: 'bg-amber-50 text-amber-600 border-amber-200',
+}
+
 export function TemplateCard({
   style,
   label,
@@ -22,6 +28,8 @@ export function TemplateCard({
   onExpand,
   children,
 }: TemplateCardProps) {
+  const meta = templateRegistry[style]
+
   return (
     <motion.div
       layout
@@ -49,16 +57,36 @@ export function TemplateCard({
           {children}
         </div>
       </div>
-      <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white">
-        <span className="text-sm font-semibold text-slate-700">{label}</span>
-        <span className="text-xs text-slate-400">{templateRegistry[style].label}</span>
+      <div className="px-4 py-3 border-t border-slate-100 bg-white">
+        <div className="flex items-center justify-between">
+          <span className="text-sm font-semibold text-slate-700">{label}</span>
+          <span
+            className={cn(
+              'text-[11px] px-2 py-0.5 rounded-full border',
+              strategyBadgeClass[meta.strategy]
+            )}
+          >
+            {strategyLabels[meta.strategy]}
+          </span>
+        </div>
+        <p className="mt-1 text-xs text-slate-400">示例：{meta.demoRole}</p>
+        <div className="mt-2 flex flex-wrap gap-1">
+          {meta.bestFor.slice(0, 4).map((job) => (
+            <span
+              key={job}
+              className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500"
+            >
+              {job}
+            </span>
+          ))}
+        </div>
       </div>
       {selected && (
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          className="absolute bottom-10 right-3 w-7 h-7 rounded-full bg-gradient-to-r from-blue-500 to-violet-500 flex items-center justify-center text-white shadow-md"
+          className="absolute top-3 right-3 w-7 h-7 rounded-full bg-gradient-to-r from-blue-500 to-violet-500 flex items-center justify-center text-white shadow-md"
         >
           <Check className="w-4 h-4" />
         </motion.div>

@@ -8,7 +8,14 @@ import { PageTransition } from '@/components/PageTransition'
 import { LoadingOverlay } from '@/components/LoadingOverlay'
 import { ArrowLeft, Check, RefreshCw, X, Sparkles, Target } from 'lucide-react'
 import type { TemplateStyle } from '@/types/resume'
-import { templateList } from '@/lib/template-config'
+import {
+  templateList,
+  templateRegistry,
+  categoryFilters,
+  categoryLabels,
+  strategyLabels,
+  type TemplateCategory,
+} from '@/lib/template-config'
 import { cn } from '@/lib/utils'
 
 interface PreviewProps {
@@ -21,6 +28,11 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
   const { optimizedResume, selectedTemplate, setSelectedTemplate, atsReport } = useResumeStore()
   const [expanded, setExpanded] = useState<TemplateStyle | null>(null)
   const [regenerating, setRegenerating] = useState(false)
+  const [category, setCategory] = useState<'all' | TemplateCategory>('all')
+
+  const visibleTemplates = category === 'all'
+    ? templateList
+    : templateList.filter((t) => t.category === category)
 
   const resume = optimizedResume
 
@@ -77,8 +89,33 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
           )}
         </div>
 
+        {/* 分类筛选 */}
+        <div className="mb-6 flex flex-wrap gap-2">
+          {categoryFilters.map((cat) => {
+            const count = cat.id === 'all'
+              ? templateList.length
+              : templateList.filter((t) => t.category === cat.id).length
+            const active = category === cat.id
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setCategory(cat.id)}
+                className={cn(
+                  'px-3.5 py-1.5 rounded-full text-sm border transition-colors',
+                  active
+                    ? 'bg-slate-900 text-white border-slate-900'
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                )}
+              >
+                {cat.label}
+                <span className={cn('ml-1.5 text-xs', active ? 'text-slate-300' : 'text-slate-400')}>{count}</span>
+              </button>
+            )
+          })}
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 lg:gap-8">
-          {templateList.map((item) => (
+          {visibleTemplates.map((item) => (
             <TemplateCard
               key={item.id}
               style={item.id}
@@ -146,7 +183,7 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="relative max-w-3xl w-full max-h-[90vh] overflow-auto bg-white rounded-xl shadow-2xl"
+              className="relative max-w-4xl w-full max-h-[90vh] overflow-auto bg-white rounded-xl shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <button
@@ -155,8 +192,67 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
               >
                 <X className="w-4 h-4" />
               </button>
-              <div className="p-6">
-                <ResumePreview resume={resume} style={expanded} className="rounded-lg shadow-lg" />
+              <div className="grid md:grid-cols-[1fr_300px]">
+                <div className="p-6">
+                  <ResumePreview resume={resume} style={expanded} className="rounded-lg shadow-lg" />
+                </div>
+                {(() => {
+                  const meta = templateRegistry[expanded]
+                  return (
+                    <div className="border-t md:border-t-0 md:border-l border-slate-100 p-6 space-y-4">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-slate-900">{meta.label}</h3>
+                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                            {categoryLabels[meta.category]} · {strategyLabels[meta.strategy]}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-xs text-slate-400">示例岗位：{meta.demoRole}</p>
+                        <p className="mt-2 text-sm text-slate-600 leading-relaxed">{meta.description}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-medium text-emerald-600 mb-1.5">适合岗位</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {meta.bestFor.map((j) => (
+                            <span key={j} className="text-xs px-2 py-0.5 rounded bg-emerald-50 text-emerald-700">{j}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {meta.avoidFor.length > 0 && (
+                        <div>
+                          <p className="text-xs font-medium text-amber-600 mb-1.5">不太适合</p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {meta.avoidFor.map((j) => (
+                              <span key={j} className="text-xs px-2 py-0.5 rounded bg-amber-50 text-amber-700">{j}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      <div>
+                        <p className="text-xs font-medium text-slate-500 mb-1.5">视觉关键词</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {meta.visualTags.map((t) => (
+                            <span key={t} className="text-xs px-2 py-0.5 rounded bg-slate-100 text-slate-500">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <Button
+                        className="w-full bg-gradient-to-r from-blue-500 to-violet-500"
+                        onClick={() => {
+                          setSelectedTemplate(expanded)
+                          setExpanded(null)
+                        }}
+                      >
+                        <Check className="w-4 h-4" />
+                        选用该模板
+                      </Button>
+                    </div>
+                  )
+                })()}
               </div>
             </motion.div>
           </motion.div>
