@@ -8,6 +8,25 @@ const api = axios.create({
   timeout: 60000,
 })
 
+// 统一响应拦截：后端返回 { success: false, error } 时抛出异常，避免前端拿到错误数据当成功处理
+api.interceptors.response.use(
+  (res) => {
+    // blob 响应（文件下载）跳过业务层校验，由调用方自行处理
+    if (res.config.responseType === 'blob') return res
+
+    const data = res.data as { success?: boolean; error?: string; data?: unknown }
+    if (data && typeof data.success === 'boolean' && !data.success) {
+      return Promise.reject(new Error(data.error || '请求失败'))
+    }
+    return res
+  },
+  (error) => {
+    // 网络错误或非 2xx 响应
+    const message = error?.response?.data?.error || error?.message || '网络请求失败'
+    return Promise.reject(new Error(message))
+  }
+)
+
 export async function uploadResume(file: File) {
   const formData = new FormData()
   formData.append('file', file)

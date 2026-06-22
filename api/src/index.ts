@@ -13,8 +13,14 @@ import { errorHandler } from './middleware/error-handler'
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// CORS 白名单：生产环境必须通过 ALLOWED_ORIGINS 显式配置，开发环境默认允许 localhost
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || []
+const corsOrigin = process.env.NODE_ENV === 'production'
+  ? allowedOrigins
+  : [...allowedOrigins, 'http://localhost:5173', 'http://localhost:4173']
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+  origin: corsOrigin.length > 0 ? corsOrigin : false,
   credentials: true,
 }))
 
