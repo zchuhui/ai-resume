@@ -437,7 +437,7 @@ function wrapHtml(body: string, fonts: { body: string; heading: string }, bg: st
 <head>
   <meta charset="UTF-8">
   <style>
-    @page { size: A4; margin: 0; }
+    @page { size: A4; margin: 10mm; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { background: ${bg}; }
     body {
@@ -512,8 +512,8 @@ export async function renderResumeToPdf(resume: Resume, template: TemplateStyle)
     const pdfBuffer = await page.pdf({
       format: 'A4',
       printBackground: true,
-      preferCSSPageSize: false,
-      margin: { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' },
+      preferCSSPageSize: true,
+      margin: { top: '0', right: '0', bottom: '0', left: '0' },
     })
 
     return Buffer.from(pdfBuffer)

@@ -20,8 +20,8 @@ const steps = [
   },
   {
     icon: Target,
-    title: '匹配岗位',
-    description: '粘贴 JD 后，围绕关键词、成果和项目重写表达。',
+    title: '选择处理方式',
+    description: '可直接换模板；粘贴 JD 后再围绕关键词、成果和项目重写表达。',
   },
   {
     icon: Download,
@@ -68,11 +68,11 @@ export default function Home({ onStart }: HomeProps) {
               className="max-w-xl"
             >
               <h1 className="text-4xl sm:text-5xl lg:text-[64px] font-bold leading-[1.05] tracking-tight text-slate-950">
-                AI 按目标岗位，
-                <span className="block text-blue-600">优化你的简历</span>
+                一份简历，
+                <span className="block text-blue-600">换成专业排版</span>
               </h1>
               <p className="mt-6 text-lg leading-8 text-slate-600">
-                上传简历、粘贴岗位 JD，系统会重组经历表达、补齐关键词，并生成适合不同岗位场景的专业模板。
+                上传简历后可直接选择模板导出；如果你有目标岗位，也可以粘贴 JD，让 AI 重组经历表达并补齐关键词。
               </p>
 
               <div className="mt-8 flex flex-col sm:flex-row gap-3">
@@ -96,7 +96,7 @@ export default function Home({ onStart }: HomeProps) {
               </div>
 
               <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-600">
-                {['支持 PDF / Word', '按 JD 优化关键词', '多岗位模板预览'].map((item) => (
+                {['支持 PDF / Word', '可只换排版', '可按 JD 优化关键词'].map((item) => (
                   <span key={item} className="inline-flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-blue-600" />
                     {item}
@@ -197,10 +197,10 @@ export default function Home({ onStart }: HomeProps) {
             <FileText className="w-6 h-6" />
           </div>
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-slate-950">
-            用真实岗位目标，生成更像投递成品的简历
+            直接换排版，或按真实岗位继续优化
           </h2>
           <p className="mt-4 text-slate-600">
-            你的经历不会被模板限制，AI 会围绕岗位要求调整表达，再匹配最合适的视觉风格。
+            不填写 JD 时保留原简历内容；填写 JD 后，AI 会围绕岗位要求调整表达，再匹配合适的视觉风格。
           </p>
           <Button size="lg" onClick={onStart} className="mt-8 rounded-md bg-blue-600 hover:bg-blue-700">
             立即开始制作

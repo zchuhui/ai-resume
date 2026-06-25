@@ -12,7 +12,7 @@ interface ResumeState {
   setRawText: (text: string) => void
   setParsedResume: (resume: Resume) => void
   setOptimizedResume: (resume: Resume) => void
-  setOptimizeRequest: (request: OptimizeRequest) => void
+  setOptimizeRequest: (request: OptimizeRequest | null) => void
   setSelectedTemplate: (template: TemplateStyle) => void
   setAtsReport: (report: AtsReport | null) => void
   reset: () => void

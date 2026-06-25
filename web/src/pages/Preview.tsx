@@ -25,10 +25,11 @@ interface PreviewProps {
 }
 
 export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) {
-  const { optimizedResume, selectedTemplate, setSelectedTemplate, atsReport } = useResumeStore()
+  const { optimizedResume, optimizeRequest, selectedTemplate, setSelectedTemplate, atsReport } = useResumeStore()
   const [expanded, setExpanded] = useState<TemplateStyle | null>(null)
   const [regenerating, setRegenerating] = useState(false)
   const [category, setCategory] = useState<'all' | TemplateCategory>('all')
+  const hasOptimization = Boolean(optimizeRequest?.jobDescription?.trim())
 
   const visibleTemplates = category === 'all'
     ? templateList
@@ -40,7 +41,7 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
     return (
       <PageTransition className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-slate-500">请先上传简历并完成优化</p>
+          <p className="text-slate-500">请先上传简历并完成解析</p>
           <Button onClick={onBack} className="mt-4">
             返回上传
           </Button>
@@ -76,7 +77,9 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
             选择你喜欢的模板风格
           </h1>
           <p className="mt-2 text-slate-500">
-            AI 已生成多种风格的简历，点击卡片选中，点击预览图放大查看
+            {hasOptimization
+              ? 'AI 已按岗位优化内容，你可以选择喜欢的模板风格'
+              : '已保留原简历内容，你可以直接选择模板风格'}
           </p>
           {atsReport && (
             <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-blue-100 bg-blue-50 px-4 py-1.5 text-sm text-blue-700">
@@ -153,7 +156,7 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
               disabled={regenerating}
             >
               <RefreshCw className={cn('w-4 h-4', regenerating && 'animate-spin')} />
-              重新生成
+              {hasOptimization ? '重新生成' : '返回调整'}
             </Button>
             <Button
               onClick={onNext}

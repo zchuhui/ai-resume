@@ -43,6 +43,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
   const [progress, setProgress] = useState<number | undefined>(undefined)
 
   const { setRawText, setParsedResume, setOptimizedResume, setOptimizeRequest, setAtsReport } = useResumeStore()
+  const shouldOptimize = jobDescription.trim().length > 0
 
   const toggleFocus = (value: OptimizeRequest['focus'][number]) => {
     setFocus((prev) =>
@@ -55,11 +56,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       setError('请先上传简历文件')
       return
     }
-    if (!jobDescription.trim()) {
-      setError('请填写目标岗位 JD')
-      return
-    }
-    if (focus.length === 0) {
+    if (shouldOptimize && focus.length === 0) {
       setError('请至少选择一项重点突出')
       return
     }
@@ -87,6 +84,15 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
         throw new Error('简历解析失败，请检查文件内容')
       }
       setParsedResume(parsedResume)
+
+      if (!shouldOptimize) {
+        setStage('正在准备模板预览...')
+        setOptimizedResume(parsedResume)
+        setOptimizeRequest(null)
+        setAtsReport(null)
+        onNext()
+        return
+      }
 
       // 3. Optimize（流式，实时进度）
       const request: OptimizeRequest = {
@@ -118,7 +124,13 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
 
   return (
     <PageTransition className="min-h-screen bg-slate-50">
-      {loading && <LoadingOverlay message={stage} subMessage="先解析结构，再按岗位 JD 改写，请稍候" progress={progress} />}
+      {loading && (
+        <LoadingOverlay
+          message={stage}
+          subMessage={shouldOptimize ? '先解析结构，再按岗位 JD 改写，请稍候' : '正在解析简历结构，随后可直接选择模板'}
+          progress={progress}
+        />
+      )}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
@@ -135,7 +147,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
             上传简历并填写需求
           </h1>
           <p className="mt-2 text-slate-500">
-            AI 会根据你的简历和目标岗位进行优化
+            只想换排版可以不填 JD；填写 JD 后，AI 会按目标岗位优化内容
           </p>
         </div>
 
@@ -169,21 +181,22 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
           <div className="bg-white rounded-2xl shadow-[0_4px_20px_rgba(15,23,42,0.06)] p-6 sm:p-8">
             <div className="space-y-6">
               <div>
-                <Label className="mb-2 block">目标岗位 JD</Label>
+                <Label className="mb-2 block">目标岗位 JD（可选）</Label>
                 <Textarea
-                  placeholder="粘贴目标岗位 JD，AI 会按关键词优化"
+                  placeholder="粘贴目标岗位 JD，AI 会按关键词优化；不填则只换模板排版"
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   rows={4}
                   disabled={loading}
                 />
                 <p className="mt-1.5 text-xs text-slate-400">
-                  粘贴岗位职责和要求，AI 会据此匹配关键词
+                  不填写 JD 时不会改写简历内容，只解析结构并进入模板选择
                 </p>
               </div>
 
               <div>
                 <Label className="mb-2 block">期望语气</Label>
+                <p className="mb-2 text-xs text-slate-400">仅在填写 JD 并进行 AI 优化时生效</p>
                 <div className="flex flex-wrap gap-2">
                   {toneOptions.map((option) => (
                     <Badge
@@ -199,6 +212,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
 
               <div>
                 <Label className="mb-2 block">重点突出</Label>
+                <p className="mb-2 text-xs text-slate-400">仅在填写 JD 并进行 AI 优化时生效</p>
                 <div className="flex flex-wrap gap-2">
                   {focusOptions.map((option) => (
                     <Badge
@@ -215,7 +229,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
               <div>
                 <Label className="mb-2 block">其他要求（可选）</Label>
                 <Textarea
-                  placeholder="例如：希望突出管理经验、控制在一页以内、增加英文关键词等"
+                  placeholder="例如：希望突出管理经验、控制在一页以内、增加英文关键词等；仅优化时生效"
                   value={otherRequirements}
                   onChange={(e) => setOtherRequirements(e.target.value)}
                   rows={3}
@@ -236,7 +250,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
                 className="w-full bg-gradient-to-r from-blue-500 to-violet-500 hover:shadow-lg"
               >
                 <Sparkles className="w-4 h-4" />
-                {loading ? 'AI 处理中...' : '开始优化'}
+                {loading ? '处理中...' : shouldOptimize ? '开始优化' : '只换排版'}
               </Button>
             </div>
           </div>
