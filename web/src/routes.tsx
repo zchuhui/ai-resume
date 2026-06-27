@@ -1,10 +1,23 @@
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Outlet, useNavigate } from 'react-router-dom'
+import type { RouteRecord } from 'vite-react-ssg'
 import { useResumeStore } from '@/lib/store'
-import { Download, Home, Preview, Upload } from '@/pages'
+import { Download, Home, Preview, Templates, Upload } from '@/pages'
 import AiResumeOptimizer from '@/pages/AiResumeOptimizer'
-import Templates from '@/pages/Templates'
-import { PageSEO } from '@/components/PageSEO'
+import TemplateDetail from '@/pages/TemplateDetail'
+import Faq from '@/pages/Faq'
+import { Seo } from '@/components/Seo'
 import { ScrollToTop } from '@/components/ScrollToTop'
+import { templateList } from '@/lib/template-config'
+
+function Layout() {
+  return (
+    <>
+      <ScrollToTop />
+      <Seo />
+      <Outlet />
+    </>
+  )
+}
 
 function HomeRoute() {
   const navigate = useNavigate()
@@ -71,22 +84,24 @@ function DownloadRoute() {
   )
 }
 
-function App() {
-  return (
-    <>
-      <ScrollToTop />
-      <PageSEO />
-      <Routes>
-        <Route path="/" element={<HomeRoute />} />
-        <Route path="/upload" element={<UploadRoute />} />
-        <Route path="/preview" element={<PreviewRoute />} />
-        <Route path="/download" element={<DownloadRoute />} />
-        <Route path="/templates" element={<Templates />} />
-        <Route path="/ai-resume-optimizer" element={<AiResumeOptimizer />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </>
-  )
-}
-
-export default App
+export const routes: RouteRecord[] = [
+  {
+    path: '/',
+    element: <Layout />,
+    children: [
+      { index: true, element: <HomeRoute /> },
+      { path: 'upload', element: <UploadRoute /> },
+      { path: 'preview', element: <PreviewRoute /> },
+      { path: 'download', element: <DownloadRoute /> },
+      { path: 'templates', element: <Templates /> },
+      {
+        path: 'templates/:slug',
+        element: <TemplateDetail />,
+        getStaticPaths: () => templateList.map((template) => `/templates/${template.id}`),
+      },
+      { path: 'ai-resume-optimizer', element: <AiResumeOptimizer /> },
+      { path: 'faq', element: <Faq /> },
+      { path: '*', element: <Navigate to="/" replace /> },
+    ],
+  },
+]

@@ -15,9 +15,10 @@ export function Footer() {
           <p className="text-sm text-slate-500">
             © {new Date().getFullYear()} ResumeCraft. AI 驱动的简历优化工具。
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
             <Link to="/templates" className="hover:text-white transition-colors">简历模板</Link>
             <Link to="/ai-resume-optimizer" className="hover:text-white transition-colors">AI 优化</Link>
+            <Link to="/faq" className="hover:text-white transition-colors">常见问题</Link>
             <Link to="/upload" className="hover:text-white transition-colors">开始制作</Link>
           </div>
         </div>

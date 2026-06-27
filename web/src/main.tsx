@@ -1,6 +1,5 @@
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
-import App from './App'
+import { ViteReactSSG } from 'vite-react-ssg'
+import { routes } from './routes'
 import './index.css'
 
 // 自托管字体（@fontsource），避免依赖被墙的 Google Fonts。
@@ -28,8 +27,8 @@ import '@fontsource/noto-sans-sc/700.css'
 import '@fontsource/noto-serif-sc/500.css'
 import '@fontsource/noto-serif-sc/700.css'
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
-    <App />
-  </BrowserRouter>
-)
+export const createRoot = ViteReactSSG({
+  routes,
+  basename: '/',
+  future: { v7_relativeSplatPath: true, v7_startTransition: true },
+})

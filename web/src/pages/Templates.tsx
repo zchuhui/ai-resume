@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, Layers3 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Footer } from '@/components/Footer'
@@ -48,29 +48,31 @@ export default function Templates() {
                 const resume = getTemplateDemoResume(template.id)
                 return (
                   <article key={template.id} className="group">
-                    <div className="aspect-[1/1.414] rounded-lg border border-slate-200 bg-white overflow-hidden shadow-[0_10px_30px_rgba(15,23,42,0.07)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_18px_48px_rgba(15,23,42,0.11)]">
-                      <ResumePreview resume={resume} style={template.id} />
-                    </div>
-                    <div className="pt-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h2 className="text-lg font-semibold text-slate-950">{template.label}</h2>
-                          <p className="mt-1 text-sm text-slate-500">{categoryLabels[template.category]} · 示例：{template.demoRole}</p>
-                        </div>
-                        <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-                          {resume.basicInfo.title}
-                        </span>
+                    <Link to={`/templates/${template.id}`} className="block" aria-label={`查看${template.label}简历模板`}>
+                      <div className="aspect-[1/1.414] rounded-lg border border-slate-200 bg-white overflow-hidden shadow-[0_10px_30px_rgba(15,23,42,0.07)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_18px_48px_rgba(15,23,42,0.11)]">
+                        <ResumePreview resume={resume} style={template.id} />
                       </div>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{template.description}</p>
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {template.bestFor.slice(0, 4).map((job) => (
-                          <span key={job} className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">
-                            <CheckCircle2 className="w-3 h-3 text-blue-600" />
-                            {job}
+                      <div className="pt-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <h2 className="text-lg font-semibold text-slate-950 group-hover:text-blue-700">{template.label}简历模板</h2>
+                            <p className="mt-1 text-sm text-slate-500">{categoryLabels[template.category]} · 示例：{template.demoRole}</p>
+                          </div>
+                          <span className="shrink-0 rounded-full bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
+                            {resume.basicInfo.title}
                           </span>
-                        ))}
+                        </div>
+                        <p className="mt-3 text-sm leading-6 text-slate-600">{template.description}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {template.bestFor.slice(0, 4).map((job) => (
+                            <span key={job} className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-600">
+                              <CheckCircle2 className="w-3 h-3 text-blue-600" />
+                              {job}
+                            </span>
+                          ))}
+                        </div>
                       </div>
-                    </div>
+                    </Link>
                   </article>
                 )
               })}
