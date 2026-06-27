@@ -62,7 +62,7 @@ export default function TemplateDetail() {
                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
                   <Button
                     size="lg"
-                    onClick={() => navigate('/upload')}
+                    onClick={() => navigate(`/upload?template=${template.id}`)}
                     className="rounded-md bg-blue-600 hover:bg-blue-700"
                   >
                     用这个模板生成简历
@@ -162,6 +162,34 @@ export default function TemplateDetail() {
             </div>
           </section>
         ) : null}
+
+        <section className="border-t border-slate-200 bg-white py-16">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+              如何用好「{template.label}」模板
+            </h2>
+            <div className="mt-8 grid md:grid-cols-3 gap-6">
+              <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-5">
+                <h3 className="font-semibold text-slate-950">突出匹配岗位</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  适合{template.bestFor.slice(0, 3).join('、')}等方向，建议把最相关的经历放在前两屏。
+                </p>
+              </div>
+              <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-5">
+                <h3 className="font-semibold text-slate-950">控制信息密度</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  根据「{strategyLabels[template.strategy]}」定位取舍内容，优先保留成果、关键词和项目贡献。
+                </p>
+              </div>
+              <div className="rounded-lg border border-slate-200 bg-slate-50/70 p-5">
+                <h3 className="font-semibold text-slate-950">按 JD 微调</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  上传简历并粘贴目标岗位 JD 后，可以先优化关键词，再默认套用这个模板导出。
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />

@@ -48,6 +48,7 @@ export function Navbar({ onStart }: NavbarProps) {
           <nav className="hidden md:flex items-center gap-5">
             <NavLink to="/templates" className={linkClass}>简历模板</NavLink>
             <NavLink to="/ai-resume-optimizer" className={linkClass}>AI 优化</NavLink>
+            <NavLink to="/guides" className={linkClass}>简历指南</NavLink>
           </nav>
           <Button
             size="sm"

@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useResumeStore } from '@/lib/store'
 import { uploadResume, parseResume, optimizeResumeStream } from '@/lib/api'
+import { getTemplateDemoResume } from '@/lib/mock-resume'
+import { templateRegistry } from '@/lib/template-config'
 import { FileDropzone } from '@/components/FileDropzone'
 import { LoadingOverlay } from '@/components/LoadingOverlay'
 import { Button } from '@/components/ui/button'
@@ -9,12 +11,13 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { PageTransition } from '@/components/PageTransition'
-import { ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react'
-import type { OptimizeRequest } from '@/types/resume'
+import { ArrowLeft, Eye, FileText, ShieldCheck, Sparkles } from 'lucide-react'
+import type { OptimizeRequest, TemplateStyle } from '@/types/resume'
 
 interface UploadProps {
   onNext: () => void
   onBackHome: () => void
+  initialTemplate?: TemplateStyle
 }
 
 const toneOptions: { value: OptimizeRequest['tone']; label: string }[] = [
@@ -31,7 +34,7 @@ const focusOptions: { value: OptimizeRequest['focus'][number]; label: string }[]
   { value: 'leadership', label: '领导力' },
 ]
 
-export default function Upload({ onNext, onBackHome }: UploadProps) {
+export default function Upload({ onNext, onBackHome, initialTemplate }: UploadProps) {
   const [file, setFile] = useState<File | null>(null)
   const [jobDescription, setJobDescription] = useState('')
   const [tone, setTone] = useState<OptimizeRequest['tone']>('professional')
@@ -42,8 +45,9 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
   const [stage, setStage] = useState('AI 正在处理中...')
   const [progress, setProgress] = useState<number | undefined>(undefined)
 
-  const { setRawText, setParsedResume, setOptimizedResume, setOptimizeRequest, setAtsReport } = useResumeStore()
+  const { setRawText, setParsedResume, setOptimizedResume, setOptimizeRequest, setSelectedTemplate, setAtsReport } = useResumeStore()
   const shouldOptimize = jobDescription.trim().length > 0
+  const initialTemplateMeta = initialTemplate ? templateRegistry[initialTemplate] : null
 
   const toggleFocus = (value: OptimizeRequest['focus'][number]) => {
     setFocus((prev) =>
@@ -88,6 +92,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       if (!shouldOptimize) {
         setStage('正在准备模板预览...')
         setOptimizedResume(parsedResume)
+        if (initialTemplate) setSelectedTemplate(initialTemplate)
         setOptimizeRequest(null)
         setAtsReport(null)
         onNext()
@@ -110,6 +115,7 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
         throw new Error('简历优化失败，请稍后重试')
       }
       setOptimizedResume(result.optimizedResume)
+      if (initialTemplate) setSelectedTemplate(initialTemplate)
       setAtsReport(result.atsReport ?? null)
 
       onNext()
@@ -120,6 +126,18 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
       setLoading(false)
       setProgress(undefined)
     }
+  }
+
+  const handleDemoResume = () => {
+    const template = initialTemplate ?? 'cobalt'
+    const demoResume = getTemplateDemoResume(template)
+    setRawText('示例简历')
+    setParsedResume(demoResume)
+    setOptimizedResume(demoResume)
+    setSelectedTemplate(template)
+    setOptimizeRequest(null)
+    setAtsReport(null)
+    onNext()
   }
 
   return (
@@ -147,7 +165,9 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
             上传简历并填写需求
           </h1>
           <p className="mt-2 text-slate-500">
-            只想换排版可以不填 JD；填写 JD 后，AI 会按目标岗位优化内容
+            {initialTemplateMeta
+              ? `已从「${initialTemplateMeta.label}」模板进入，上传后会默认选中该模板`
+              : '只想换排版可以不填 JD；填写 JD 后，AI 会按目标岗位优化内容'}
           </p>
         </div>
 
@@ -158,6 +178,19 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
             你的简历仅在本次处理中使用，处理完成后即销毁，不会被存储或用于其他用途。
           </AlertDescription>
         </Alert>
+
+        <div className="mb-8 grid md:grid-cols-3 gap-3">
+          {[
+            { icon: ShieldCheck, text: '不长期保存原始文件' },
+            { icon: FileText, text: '不填 JD 也能只换模板' },
+            { icon: Sparkles, text: 'AI 不会编造公司和项目' },
+          ].map((item) => (
+            <div key={item.text} className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
+              <item.icon className="w-4 h-4 text-blue-600" />
+              {item.text}
+            </div>
+          ))}
+        </div>
 
         {/* Two columns */}
         <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -173,6 +206,21 @@ export default function Upload({ onNext, onBackHome }: UploadProps) {
             {file && (
               <p className="mt-3 text-sm text-slate-500">
                 已选择文件：{file.name}
+              </p>
+            )}
+            <Button
+              type="button"
+              variant="secondary"
+              className="mt-4 w-full rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+              onClick={handleDemoResume}
+              disabled={loading}
+            >
+              <Eye className="w-4 h-4" />
+              使用示例简历体验
+            </Button>
+            {initialTemplateMeta && (
+              <p className="mt-3 text-xs leading-5 text-blue-600">
+                示例体验也会直接套用「{initialTemplateMeta.label}」模板。
               </p>
             )}
           </div>

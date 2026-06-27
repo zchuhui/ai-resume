@@ -1,4 +1,5 @@
-import { Navigate, Outlet, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Navigate, Outlet, useNavigate, useSearchParams } from 'react-router-dom'
 import type { RouteRecord } from 'vite-react-ssg'
 import { useResumeStore } from '@/lib/store'
 import { Download, Home, Preview, Templates, Upload } from '@/pages'
@@ -9,8 +10,9 @@ import Guides from '@/pages/Guides'
 import GuideDetail from '@/pages/GuideDetail'
 import { Seo } from '@/components/Seo'
 import { ScrollToTop } from '@/components/ScrollToTop'
-import { templateList } from '@/lib/template-config'
+import { templateList, templateRegistry } from '@/lib/template-config'
 import { guides } from '@/lib/guides'
+import type { TemplateStyle } from '@/types/resume'
 
 function Layout() {
   return (
@@ -24,16 +26,24 @@ function Layout() {
 
 function HomeRoute() {
   const navigate = useNavigate()
-  return <Home onStart={() => navigate('/upload')} />
+  return <Home onStart={() => navigate('/upload')} onBrowseTemplates={() => navigate('/templates')} />
 }
 
 function UploadRoute() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const reset = useResumeStore((state) => state.reset)
+  const [initialTemplate, setInitialTemplate] = useState<TemplateStyle | undefined>(undefined)
+
+  useEffect(() => {
+    const templateParam = searchParams.get('template') as TemplateStyle | null
+    setInitialTemplate(templateParam && templateRegistry[templateParam] ? templateParam : undefined)
+  }, [searchParams])
 
   return (
     <Upload
       onNext={() => navigate('/preview')}
+      initialTemplate={initialTemplate}
       onBackHome={() => {
         reset()
         navigate('/')

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { ArrowRight, CheckCircle2, Download, FileText, Layers3, Sparkles, Target, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Navbar } from '@/components/Navbar'
@@ -10,6 +11,7 @@ import type { TemplateStyle } from '@/types/resume'
 
 interface HomeProps {
   onStart: () => void
+  onBrowseTemplates: () => void
 }
 
 const steps = [
@@ -43,7 +45,7 @@ const styles = templateList.map((t) => ({
   recommended: t.recommended.slice(0, 3).join(' / '),
 })) as { style: TemplateStyle; label: string; description: string; recommended: string }[]
 
-export default function Home({ onStart }: HomeProps) {
+export default function Home({ onStart, onBrowseTemplates }: HomeProps) {
   return (
     <div className="min-h-screen bg-white text-slate-950">
       <Navbar onStart={onStart} />
@@ -89,7 +91,7 @@ export default function Home({ onStart }: HomeProps) {
                   variant="secondary"
                   size="lg"
                   className="h-12 px-6 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                  onClick={() => document.getElementById('templates')?.scrollIntoView({ behavior: 'smooth' })}
+                  onClick={onBrowseTemplates}
                 >
                   浏览模板
                 </Button>
@@ -173,18 +175,18 @@ export default function Home({ onStart }: HomeProps) {
             {styles.map((item) => {
               const resume = getTemplateDemoResume(item.style)
               return (
-                <div key={item.style} className="group">
+                <Link key={item.style} to={`/templates/${item.style}`} className="group block" aria-label={`查看${item.label}简历模板`}>
                   <div className="aspect-[1/1.414] rounded-lg border border-slate-200 bg-white overflow-hidden shadow-[0_10px_30px_rgba(15,23,42,0.07)] transition-all duration-200 group-hover:-translate-y-1 group-hover:shadow-[0_18px_48px_rgba(15,23,42,0.11)]">
                     <ResumePreview resume={resume} style={item.style} />
                   </div>
                   <div className="pt-4">
                     <div className="flex items-baseline justify-between gap-3">
-                      <h3 className="text-lg font-semibold text-slate-950">{item.label}</h3>
+                      <h3 className="text-lg font-semibold text-slate-950 group-hover:text-blue-700">{item.label}</h3>
                       <span className="text-sm font-medium text-blue-600">{resume.basicInfo.title}</span>
                     </div>
                     <p className="mt-1 text-sm text-slate-500">{item.recommended}</p>
                   </div>
-                </div>
+                </Link>
               )
             })}
           </div>

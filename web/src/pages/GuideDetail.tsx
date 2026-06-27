@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Footer } from '@/components/Footer'
 import { Navbar } from '@/components/Navbar'
 import { guideMap } from '@/lib/guides'
+import { categoryLabels, templateRegistry } from '@/lib/template-config'
 
 export default function GuideDetail() {
   const navigate = useNavigate()
@@ -15,6 +16,9 @@ export default function GuideDetail() {
   }
 
   const related = guide.related.map((s) => guideMap[s]).filter(Boolean)
+  const recommendedTemplates = (guide.recommendedTemplates ?? [])
+    .map((template) => templateRegistry[template])
+    .filter(Boolean)
 
   return (
     <div className="min-h-screen bg-white text-slate-950">
@@ -91,6 +95,25 @@ export default function GuideDetail() {
                   </li>
                 ))}
               </ul>
+            </div>
+          ) : null}
+
+          {recommendedTemplates.length > 0 ? (
+            <div className="mt-12 border-t border-slate-200 pt-8">
+              <h2 className="text-lg font-semibold text-slate-950">推荐模板</h2>
+              <div className="mt-4 grid sm:grid-cols-3 gap-4">
+                {recommendedTemplates.map((template) => (
+                  <Link
+                    key={template.id}
+                    to={`/templates/${template.id}`}
+                    className="rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-blue-200 hover:bg-blue-50/40"
+                  >
+                    <h3 className="font-semibold text-slate-950">{template.label}简历模板</h3>
+                    <p className="mt-1 text-xs text-blue-600">{categoryLabels[template.category]}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{template.description}</p>
+                  </Link>
+                ))}
+              </div>
             </div>
           ) : null}
         </article>
