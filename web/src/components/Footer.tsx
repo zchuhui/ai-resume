@@ -1,4 +1,5 @@
 import { Sparkles } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export function Footer() {
   return (
@@ -15,9 +16,9 @@ export function Footer() {
             © {new Date().getFullYear()} ResumeCraft. AI 驱动的简历优化工具。
           </p>
           <div className="flex gap-6 text-sm">
-            <a href="#" className="hover:text-white transition-colors">隐私声明</a>
-            <a href="#" className="hover:text-white transition-colors">使用条款</a>
-            <a href="#" className="hover:text-white transition-colors">联系我们</a>
+            <Link to="/templates" className="hover:text-white transition-colors">简历模板</Link>
+            <Link to="/ai-resume-optimizer" className="hover:text-white transition-colors">AI 优化</Link>
+            <Link to="/upload" className="hover:text-white transition-colors">开始制作</Link>
           </div>
         </div>
       </div>

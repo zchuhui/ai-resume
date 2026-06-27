@@ -1,0 +1,16 @@
+{
+  "name": "ResumeCraft",
+  "short_name": "ResumeCraft",
+  "description": "AI 简历优化与专业简历模板工具",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/resumecraft.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

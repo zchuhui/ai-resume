@@ -4,6 +4,8 @@
 
 ![首页](files/1.png)
 
+访问地址：https://resume.dolfi.chat
+
 ## 功能特性
 
 - **两种制作方式**：不填 JD 时只解析结构并换排版；填写 JD 后再按岗位关键词优化内容。
@@ -11,6 +13,8 @@
 - **AI 结构化**：把非结构化简历文本转换为统一 Resume 数据结构。
 - **岗位优化**：根据目标岗位 JD、语气和突出重点改写简历内容，并生成 ATS 关键词匹配报告。
 - **模板库**：内置 15 套职业场景模板，覆盖通用专业、正式权威、互联网科技、创意作品、学术教育、应届海投等分类。
+- **多页流程**：首页、上传、模板预览、下载、模板库和 AI 优化介绍页使用独立路由，支持刷新、返回和直接分享链接。
+- **SEO 基础能力**：公开页面配置独立标题、描述、Canonical、Open Graph、结构化数据、`robots.txt` 和 `sitemap.xml`。
 - **导出能力**：支持 PDF 和 Word 导出；PDF 由后端 Puppeteer 渲染，保留可选中文本和打印分页。
 - **隐私友好**：不依赖数据库，上传文件在内存中处理，解析后立即释放文件 buffer。
 - **生产配置**：支持 CORS 白名单、IP 限流、AI 模型分任务配置和 Docker 部署。
@@ -63,7 +67,7 @@ ai-resume/
 │   └── Dockerfile
 ├── web/                    # Vite + React 前端
 │   └── src/
-│       ├── pages/          # 首页、上传、预览、下载
+│       ├── pages/          # 首页、上传、预览、下载、模板库、AI 优化页
 │       ├── components/     # UI 与简历模板组件
 │       └── lib/            # API、状态、模板配置
 ├── shared/                 # 前后端共享模板 token
@@ -111,6 +115,9 @@ npm run dev
 
 ```env
 VITE_API_BASE_URL=http://localhost:3001/api
+
+# 生产域名，用于 canonical、OG URL、robots.txt 和 sitemap.xml
+VITE_SITE_URL=https://resume.dolfi.chat
 ```
 
 ### 后端 `api/.env`
@@ -140,6 +147,17 @@ RATE_LIMIT_WINDOW_MS=3600000
 ```
 
 ## 核心流程
+
+### 页面路由
+
+| 路径 | 说明 | SEO 策略 |
+|------|------|----------|
+| `/` | 首页与产品入口 | 可索引 |
+| `/templates` | 公开简历模板库 | 可索引 |
+| `/ai-resume-optimizer` | AI 简历优化介绍页 | 可索引 |
+| `/upload` | 上传简历与填写 JD | `noindex` |
+| `/preview` | 模板预览与选择 | `noindex` |
+| `/download` | 导出 PDF / Word | `noindex` |
 
 ### 只换排版
 
@@ -175,10 +193,15 @@ RATE_LIMIT_WINDOW_MS=3600000
 cd web
 npm run build
 
+# 使用正式域名生成 sitemap.xml 和 robots.txt
+VITE_SITE_URL=https://resume.dolfi.chat npm run seo:sitemap
+
 # 后端构建
 cd ../api
 npm run build
 ```
+
+前端构建会在配置 `VITE_SITE_URL` 或 `SITE_URL` 时自动生成 `public/sitemap.xml` 和带 Sitemap 地址的 `public/robots.txt`；未配置域名时会跳过生成，避免写入错误的生产 URL。
 
 ## 部署建议
 
@@ -201,6 +224,8 @@ npm run build
 | 后端模式 | Docker 容器 |
 
 生产部署时需要设置后端环境变量，尤其是 `AI_API_KEY`、`AI_BASE_URL`、`AI_MODEL` 和 `ALLOWED_ORIGINS`。
+
+前端生产部署时建议同时设置 `VITE_API_BASE_URL` 和 `VITE_SITE_URL`。如果静态托管平台不自动回退到 `index.html`，需要配置 SPA fallback，确保 `/templates`、`/ai-resume-optimizer`、`/upload` 等多页路径刷新时仍返回前端入口。
 
 ## 隐私与安全
 

@@ -1,46 +1,92 @@
-import { useState, useCallback } from 'react'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { useResumeStore } from '@/lib/store'
-import { Home, Upload, Preview, Download } from '@/pages'
+import { Download, Home, Preview, Upload } from '@/pages'
+import AiResumeOptimizer from '@/pages/AiResumeOptimizer'
+import Templates from '@/pages/Templates'
+import { PageSEO } from '@/components/PageSEO'
+import { ScrollToTop } from '@/components/ScrollToTop'
 
-type Step = 'home' | 'upload' | 'preview' | 'download'
+function HomeRoute() {
+  const navigate = useNavigate()
+  return <Home onStart={() => navigate('/upload')} />
+}
 
-function App() {
-  const optimizedResume = useResumeStore((state) => state.optimizedResume)
-  const selectedTemplate = useResumeStore((state) => state.selectedTemplate)
+function UploadRoute() {
+  const navigate = useNavigate()
   const reset = useResumeStore((state) => state.reset)
 
-  const [step, setStep] = useState<Step>(() => {
-    if (selectedTemplate) return 'download'
-    if (optimizedResume) return 'preview'
-    return 'home'
-  })
+  return (
+    <Upload
+      onNext={() => navigate('/preview')}
+      onBackHome={() => {
+        reset()
+        navigate('/')
+      }}
+    />
+  )
+}
 
-  const goToUpload = useCallback(() => setStep('upload'), [])
-  const goToPreview = useCallback(() => setStep('preview'), [])
-  const goToDownload = useCallback(() => setStep('download'), [])
-  const goToHome = useCallback(() => {
-    reset()
-    setStep('home')
-  }, [reset])
-  const goBackToUpload = useCallback(() => setStep('upload'), [])
-  const goBackToPreview = useCallback(() => setStep('preview'), [])
+function PreviewRoute() {
+  const navigate = useNavigate()
+  const optimizedResume = useResumeStore((state) => state.optimizedResume)
 
-  const handleRegenerate = useCallback(async () => {
-    // Trigger re-running the optimize flow by going back to upload with existing data
-    goBackToUpload()
-    return Promise.resolve()
-  }, [goBackToUpload])
-
-  switch (step) {
-    case 'home':
-      return <Home onStart={goToUpload} />
-    case 'upload':
-      return <Upload onNext={goToPreview} onBackHome={goToHome} />
-    case 'preview':
-      return <Preview onNext={goToDownload} onBack={goBackToUpload} onRegenerate={handleRegenerate} />
-    case 'download':
-      return <Download onRestart={goBackToPreview} onBackHome={goToHome} />
+  if (!optimizedResume) {
+    return <Navigate to="/upload" replace />
   }
+
+  return (
+    <Preview
+      onNext={() => navigate('/download')}
+      onBack={() => navigate('/upload')}
+      onRegenerate={() => {
+        navigate('/upload')
+        return Promise.resolve()
+      }}
+    />
+  )
+}
+
+function DownloadRoute() {
+  const navigate = useNavigate()
+  const reset = useResumeStore((state) => state.reset)
+  const optimizedResume = useResumeStore((state) => state.optimizedResume)
+  const selectedTemplate = useResumeStore((state) => state.selectedTemplate)
+
+  if (!optimizedResume) {
+    return <Navigate to="/upload" replace />
+  }
+
+  if (!selectedTemplate) {
+    return <Navigate to="/preview" replace />
+  }
+
+  return (
+    <Download
+      onRestart={() => navigate('/preview')}
+      onBackHome={() => {
+        reset()
+        navigate('/')
+      }}
+    />
+  )
+}
+
+function App() {
+  return (
+    <>
+      <ScrollToTop />
+      <PageSEO />
+      <Routes>
+        <Route path="/" element={<HomeRoute />} />
+        <Route path="/upload" element={<UploadRoute />} />
+        <Route path="/preview" element={<PreviewRoute />} />
+        <Route path="/download" element={<DownloadRoute />} />
+        <Route path="/templates" element={<Templates />} />
+        <Route path="/ai-resume-optimizer" element={<AiResumeOptimizer />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  )
 }
 
 export default App
