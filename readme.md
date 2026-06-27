@@ -216,45 +216,7 @@ npm run build
 
 前端使用 `vite-react-ssg` 生成静态公开页面。构建会在配置 `VITE_SITE_URL` 或 `SITE_URL` 时自动生成 `public/sitemap.xml` 和带 Sitemap 地址的 `public/robots.txt`；未配置域名时会跳过生成，避免写入错误的生产 URL。
 
-## 部署建议
 
-这个项目的后端包含文件上传、Puppeteer PDF 渲染和较长的 AI 请求，推荐使用容器服务承载后端，而不是把后端拆成普通短时函数。
-
-### 推荐方案
-
-- **国内 MVP / 小规模上线**：CloudBase 静态托管 + CloudBase Run
-- **国内正式生产**：CloudBase Run 或腾讯云 CVM / TKE，后端建议至少 1C/2G
-- **海外部署**：前端 Vercel / Cloudflare Pages，后端 Google Cloud Run / Render / Railway
-- **预算优先**：轻量云服务器 + Docker Compose + Nginx
-
-### 当前 CloudBase 配置参考
-
-| 资源 | 值 |
-|------|----|
-| 环境 ID | `ai-native-d8ghthch055daacb6` |
-| 区域 | `ap-shanghai` |
-| CloudRun 服务 | `ai-resume-api` |
-| 后端模式 | Docker 容器 |
-
-生产部署时需要设置后端环境变量，尤其是 `AI_API_KEY`、`AI_BASE_URL`、`AI_MODEL` 和 `ALLOWED_ORIGINS`。
-
-前端生产部署时建议同时设置 `VITE_API_BASE_URL` 和 `VITE_SITE_URL`。如果静态托管平台不自动回退到 `index.html`，需要配置 SPA fallback，确保 `/templates`、`/ai-resume-optimizer`、`/upload` 等多页路径刷新时仍返回前端入口。
-
-## 隐私与安全
-
-- 项目默认不接入数据库。
-- 上传文件通过内存处理，解析后释放 buffer。
-- 生产环境必须配置 `NODE_ENV=production` 和准确的 `ALLOWED_ORIGINS`。
-- AI 接口有基于 IP 的内存限流，可通过 `RATE_LIMIT_MAX` 和 `RATE_LIMIT_WINDOW_MS` 调整。
-- 不要把 `.env`、API Key 或用户简历文件提交到仓库。
-
-## 文档
-
-- [architecture.md](architecture.md)：系统架构、数据模型、API 设计和部署方案
-- [design.md](design.md)：产品定位、视觉规范和页面设计
-- [docs/template-expansion-plan.md](docs/template-expansion-plan.md)：模板扩展规划
-- [docs/resume-template-product-roadmap.md](docs/resume-template-product-roadmap.md)：简历模板产品路线
-- [docs/review-templates-and-ai.md](docs/review-templates-and-ai.md)：模板与 AI 流程复盘
 
 ## 许可证
 
