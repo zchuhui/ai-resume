@@ -2,6 +2,7 @@ import { Head } from 'vite-react-ssg'
 import { useLocation } from 'react-router-dom'
 import { categoryLabels, templateList, templateRegistry } from '@/lib/template-config'
 import { faqItems } from '@/lib/faq'
+import { guideMap, guides } from '@/lib/guides'
 import type { TemplateStyle } from '@/types/resume'
 
 type SeoConfig = {
@@ -82,6 +83,24 @@ const staticRouteSeo: Record<string, SeoConfig> = {
       })),
     },
   },
+  '/guides': {
+    title: '简历指南 - 简历怎么写、ATS 优化与应届生简历技巧',
+    description:
+      '简历写作与求职指南合集：一份专业简历的结构与技巧、ATS 简历优化、应届生简历怎么写，帮你把经历整理成更容易拿到面试的表达。',
+    path: '/guides',
+    keywords: '简历怎么写,简历指南,ATS简历优化,应届生简历,求职技巧',
+    structuredData: {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: '简历写作与求职指南',
+      itemListElement: guides.map((guide, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: guide.title,
+        url: `${SITE_URL}/guides/${guide.slug}`,
+      })),
+    },
+  },
   '/upload': {
     title: '上传简历 - ResumeCraft',
     description: '上传 PDF 或 Word 简历，选择是否按目标岗位 JD 进行 AI 优化。',
@@ -130,12 +149,55 @@ function templateDetailSeo(slug: string): SeoConfig | null {
   }
 }
 
+function guideDetailSeo(slug: string): SeoConfig | null {
+  const guide = guideMap[slug]
+  if (!guide) return null
+
+  const path = `/guides/${guide.slug}`
+  const url = `${SITE_URL}${path}`
+
+  return {
+    title: `${guide.title} | ResumeCraft`,
+    description: guide.description,
+    path,
+    keywords: guide.keywords,
+    structuredData: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: guide.title,
+        description: guide.description,
+        datePublished: guide.updated,
+        dateModified: guide.updated,
+        author: { '@type': 'Organization', name: siteName },
+        publisher: { '@type': 'Organization', name: siteName },
+        mainEntityOfPage: url,
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE_URL}/` },
+          { '@type': 'ListItem', position: 2, name: '简历指南', item: `${SITE_URL}/guides` },
+          { '@type': 'ListItem', position: 3, name: guide.title, item: url },
+        ],
+      },
+    ],
+  }
+}
+
 function resolveSeo(pathname: string): SeoConfig {
   if (staticRouteSeo[pathname]) return staticRouteSeo[pathname]
 
   const templateMatch = pathname.match(/^\/templates\/([^/]+)\/?$/)
   if (templateMatch) {
     const seo = templateDetailSeo(templateMatch[1])
+    if (seo) return seo
+  }
+
+  const guideMatch = pathname.match(/^\/guides\/([^/]+)\/?$/)
+  if (guideMatch) {
+    const seo = guideDetailSeo(guideMatch[1])
     if (seo) return seo
   }
 

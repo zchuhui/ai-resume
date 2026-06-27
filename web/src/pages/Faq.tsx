@@ -64,7 +64,11 @@ export default function Faq() {
               </Button>
             </div>
             <p className="mt-6 text-sm text-slate-500">
-              想了解按岗位优化的细节？查看
+              想系统学习怎么写简历？查看
+              <Link to="/guides" className="text-blue-600 hover:underline">
+                简历指南
+              </Link>
+              ，或了解
               <Link to="/ai-resume-optimizer" className="text-blue-600 hover:underline">
                 AI 简历优化工具
               </Link>

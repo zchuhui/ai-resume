@@ -18,6 +18,7 @@ export function Footer() {
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm">
             <Link to="/templates" className="hover:text-white transition-colors">简历模板</Link>
             <Link to="/ai-resume-optimizer" className="hover:text-white transition-colors">AI 优化</Link>
+            <Link to="/guides" className="hover:text-white transition-colors">简历指南</Link>
             <Link to="/faq" className="hover:text-white transition-colors">常见问题</Link>
             <Link to="/upload" className="hover:text-white transition-colors">开始制作</Link>
           </div>

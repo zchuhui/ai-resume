@@ -5,9 +5,12 @@ import { Download, Home, Preview, Templates, Upload } from '@/pages'
 import AiResumeOptimizer from '@/pages/AiResumeOptimizer'
 import TemplateDetail from '@/pages/TemplateDetail'
 import Faq from '@/pages/Faq'
+import Guides from '@/pages/Guides'
+import GuideDetail from '@/pages/GuideDetail'
 import { Seo } from '@/components/Seo'
 import { ScrollToTop } from '@/components/ScrollToTop'
 import { templateList } from '@/lib/template-config'
+import { guides } from '@/lib/guides'
 
 function Layout() {
   return (
@@ -101,6 +104,12 @@ export const routes: RouteRecord[] = [
       },
       { path: 'ai-resume-optimizer', element: <AiResumeOptimizer /> },
       { path: 'faq', element: <Faq /> },
+      { path: 'guides', element: <Guides /> },
+      {
+        path: 'guides/:slug',
+        element: <GuideDetail />,
+        getStaticPaths: () => guides.map((guide) => `/guides/${guide.slug}`),
+      },
       { path: '*', element: <Navigate to="/" replace /> },
     ],
   },
