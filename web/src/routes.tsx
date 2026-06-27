@@ -10,14 +10,17 @@ import Guides from '@/pages/Guides'
 import GuideDetail from '@/pages/GuideDetail'
 import { Seo } from '@/components/Seo'
 import { ScrollToTop } from '@/components/ScrollToTop'
+import { AnalyticsTracker } from '@/components/AnalyticsTracker'
 import { templateList, templateRegistry } from '@/lib/template-config'
 import { guides } from '@/lib/guides'
 import type { TemplateStyle } from '@/types/resume'
+import Admin from '@/pages/Admin'
 
 function Layout() {
   return (
     <>
       <ScrollToTop />
+      <AnalyticsTracker />
       <Seo />
       <Outlet />
     </>
@@ -115,6 +118,7 @@ export const routes: RouteRecord[] = [
       { path: 'ai-resume-optimizer', element: <AiResumeOptimizer /> },
       { path: 'faq', element: <Faq /> },
       { path: 'guides', element: <Guides /> },
+      { path: 'admin', element: <Admin /> },
       {
         path: 'guides/:slug',
         element: <GuideDetail />,

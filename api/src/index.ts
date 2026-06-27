@@ -8,6 +8,7 @@ import uploadRoutes from './routes/upload'
 import parseRoutes from './routes/parse-structure'
 import optimizeRoutes from './routes/optimize'
 import exportRoutes from './routes/export'
+import analyticsRoutes from './routes/analytics'
 import { errorHandler } from './middleware/error-handler'
 
 const app = express()
@@ -17,7 +18,7 @@ const PORT = process.env.PORT || 3001
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || []
 const corsOrigin = process.env.NODE_ENV === 'production'
   ? allowedOrigins
-  : [...allowedOrigins, 'http://localhost:5173', 'http://localhost:4173']
+  : [...allowedOrigins, 'http://localhost:5173', 'http://localhost:4173', 'http://localhost:8000']
 
 app.use(cors({
   origin: corsOrigin.length > 0 ? corsOrigin : false,
@@ -31,6 +32,7 @@ app.use('/api/upload', uploadRoutes)
 app.use('/api/parse-structure', parseRoutes)
 app.use('/api/optimize', optimizeRoutes)
 app.use('/api/export', exportRoutes)
+app.use('/api/analytics', analyticsRoutes)
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })

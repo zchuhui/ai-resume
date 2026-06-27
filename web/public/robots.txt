@@ -3,4 +3,5 @@ Allow: /
 Disallow: /upload
 Disallow: /preview
 Disallow: /download
+Disallow: /admin
 Sitemap: https://resume.dolfi.chat/sitemap.xml

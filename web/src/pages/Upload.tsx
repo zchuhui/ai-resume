@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useResumeStore } from '@/lib/store'
 import { uploadResume, parseResume, optimizeResumeStream } from '@/lib/api'
+import { trackEvent } from '@/lib/analytics'
 import { getTemplateDemoResume } from '@/lib/mock-resume'
 import { templateRegistry } from '@/lib/template-config'
 import { FileDropzone } from '@/components/FileDropzone'
@@ -68,6 +69,12 @@ export default function Upload({ onNext, onBackHome, initialTemplate }: UploadPr
     setError(null)
     setLoading(true)
     setProgress(undefined)
+    const startedAt = Date.now()
+    trackEvent('upload_started', {
+      mode: shouldOptimize ? 'optimize' : 'format_only',
+      template: initialTemplate,
+      source: initialTemplate ? 'template_detail' : 'upload',
+    })
 
     try {
       // 1. Upload & extract text
@@ -87,6 +94,11 @@ export default function Upload({ onNext, onBackHome, initialTemplate }: UploadPr
       if (!parsedResume) {
         throw new Error('简历解析失败，请检查文件内容')
       }
+      trackEvent('parse_success', {
+        mode: shouldOptimize ? 'optimize' : 'format_only',
+        template: initialTemplate,
+        durationMs: Date.now() - startedAt,
+      })
       setParsedResume(parsedResume)
 
       if (!shouldOptimize) {
@@ -95,6 +107,11 @@ export default function Upload({ onNext, onBackHome, initialTemplate }: UploadPr
         if (initialTemplate) setSelectedTemplate(initialTemplate)
         setOptimizeRequest(null)
         setAtsReport(null)
+        trackEvent('resume_flow_ready', {
+          mode: 'format_only',
+          template: initialTemplate,
+          durationMs: Date.now() - startedAt,
+        })
         onNext()
         return
       }
@@ -117,10 +134,21 @@ export default function Upload({ onNext, onBackHome, initialTemplate }: UploadPr
       setOptimizedResume(result.optimizedResume)
       if (initialTemplate) setSelectedTemplate(initialTemplate)
       setAtsReport(result.atsReport ?? null)
+      trackEvent('optimize_success', {
+        mode: 'optimize',
+        template: initialTemplate,
+        durationMs: Date.now() - startedAt,
+      })
 
       onNext()
     } catch (err) {
       const message = err instanceof Error ? err.message : '处理过程中发生错误，请稍后重试'
+      trackEvent(message.includes('优化') ? 'optimize_failed' : 'parse_failed', {
+        mode: shouldOptimize ? 'optimize' : 'format_only',
+        template: initialTemplate,
+        durationMs: Date.now() - startedAt,
+        error: message,
+      })
       setError(message)
     } finally {
       setLoading(false)
@@ -131,6 +159,10 @@ export default function Upload({ onNext, onBackHome, initialTemplate }: UploadPr
   const handleDemoResume = () => {
     const template = initialTemplate ?? 'cobalt'
     const demoResume = getTemplateDemoResume(template)
+    trackEvent('demo_resume_used', {
+      template,
+      source: initialTemplate ? 'template_detail' : 'upload',
+    })
     setRawText('示例简历')
     setParsedResume(demoResume)
     setOptimizedResume(demoResume)

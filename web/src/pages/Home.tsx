@@ -7,6 +7,7 @@ import { Footer } from '@/components/Footer'
 import { ResumePreview } from '@/components/resume/ResumePreview'
 import { getTemplateDemoResume } from '@/lib/mock-resume'
 import { templateList } from '@/lib/template-config'
+import { trackEvent } from '@/lib/analytics'
 import type { TemplateStyle } from '@/types/resume'
 
 interface HomeProps {
@@ -81,7 +82,10 @@ export default function Home({ onStart, onBrowseTemplates }: HomeProps) {
                 <Button
                   id="hero-cta"
                   size="lg"
-                  onClick={onStart}
+                  onClick={() => {
+                    trackEvent('start_clicked', { source: 'home_hero' })
+                    onStart()
+                  }}
                   className="h-12 px-6 rounded-md bg-blue-600 hover:bg-blue-700 shadow-[0_18px_36px_rgba(37,99,235,0.22)]"
                 >
                   开始制作
@@ -91,7 +95,10 @@ export default function Home({ onStart, onBrowseTemplates }: HomeProps) {
                   variant="secondary"
                   size="lg"
                   className="h-12 px-6 rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-                  onClick={onBrowseTemplates}
+                  onClick={() => {
+                    trackEvent('template_browse_clicked', { source: 'home_hero' })
+                    onBrowseTemplates()
+                  }}
                 >
                   浏览模板
                 </Button>
@@ -164,7 +171,10 @@ export default function Home({ onStart, onBrowseTemplates }: HomeProps) {
             <Button
               variant="secondary"
               className="w-fit rounded-md bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
-              onClick={onStart}
+              onClick={() => {
+                trackEvent('start_clicked', { source: 'home_templates' })
+                onStart()
+              }}
             >
               <Layers3 className="w-4 h-4" />
               用我的简历生成
@@ -204,7 +214,14 @@ export default function Home({ onStart, onBrowseTemplates }: HomeProps) {
           <p className="mt-4 text-slate-600">
             不填写 JD 时保留原简历内容；填写 JD 后，AI 会围绕岗位要求调整表达，再匹配合适的视觉风格。
           </p>
-          <Button size="lg" onClick={onStart} className="mt-8 rounded-md bg-blue-600 hover:bg-blue-700">
+          <Button
+            size="lg"
+            onClick={() => {
+              trackEvent('start_clicked', { source: 'home_bottom' })
+              onStart()
+            }}
+            className="mt-8 rounded-md bg-blue-600 hover:bg-blue-700"
+          >
             立即开始制作
             <Sparkles className="w-4 h-4" />
           </Button>

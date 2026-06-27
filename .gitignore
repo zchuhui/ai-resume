@@ -7,3 +7,6 @@ shared/*.js
 shared/*.js.map
 shared/*.d.ts
 shared/*.d.ts.map
+
+# Local analytics event storage
+api/data/

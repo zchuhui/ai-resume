@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer'
 import { Navbar } from '@/components/Navbar'
 import { ResumePreview } from '@/components/resume/ResumePreview'
 import { getTemplateDemoResume } from '@/lib/mock-resume'
+import { trackEvent } from '@/lib/analytics'
 import { categoryLabels, strategyLabels, templateList, templateRegistry } from '@/lib/template-config'
 import type { TemplateStyle } from '@/types/resume'
 
@@ -62,7 +63,13 @@ export default function TemplateDetail() {
                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
                   <Button
                     size="lg"
-                    onClick={() => navigate(`/upload?template=${template.id}`)}
+                    onClick={() => {
+                      trackEvent('template_cta_clicked', {
+                        template: template.id,
+                        source: 'template_detail',
+                      })
+                      navigate(`/upload?template=${template.id}`)
+                    }}
                     className="rounded-md bg-blue-600 hover:bg-blue-700"
                   >
                     用这个模板生成简历
@@ -71,7 +78,13 @@ export default function TemplateDetail() {
                   <Button
                     size="lg"
                     variant="secondary"
-                    onClick={() => navigate('/templates')}
+                    onClick={() => {
+                      trackEvent('template_browse_clicked', {
+                        template: template.id,
+                        source: 'template_detail',
+                      })
+                      navigate('/templates')
+                    }}
                     className="rounded-md bg-white border border-slate-200"
                   >
                     查看全部模板

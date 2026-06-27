@@ -17,6 +17,7 @@ import {
   type TemplateCategory,
 } from '@/lib/template-config'
 import { cn } from '@/lib/utils'
+import { trackEvent } from '@/lib/analytics'
 
 interface PreviewProps {
   onNext: () => void
@@ -124,8 +125,21 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
               style={item.id}
               label={item.label}
               selected={selectedTemplate === item.id}
-              onClick={() => setSelectedTemplate(item.id)}
-              onExpand={() => setExpanded(item.id)}
+              onClick={() => {
+                setSelectedTemplate(item.id)
+                trackEvent('template_selected', {
+                  template: item.id,
+                  mode: hasOptimization ? 'optimize' : 'format_only',
+                  source: 'preview_grid',
+                })
+              }}
+              onExpand={() => {
+                setExpanded(item.id)
+                trackEvent('template_preview_expanded', {
+                  template: item.id,
+                  source: 'preview_grid',
+                })
+              }}
             >
               <ResumePreview resume={resume} style={item.id} />
             </TemplateCard>
@@ -159,7 +173,13 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
               {hasOptimization ? '重新生成' : '返回调整'}
             </Button>
             <Button
-              onClick={onNext}
+              onClick={() => {
+                trackEvent('template_confirmed', {
+                  template: selectedTemplate || undefined,
+                  mode: hasOptimization ? 'optimize' : 'format_only',
+                })
+                onNext()
+              }}
               disabled={!selectedTemplate}
               className="bg-gradient-to-r from-blue-500 to-violet-500"
             >
@@ -247,6 +267,11 @@ export default function Preview({ onNext, onBack, onRegenerate }: PreviewProps) 
                         className="w-full bg-gradient-to-r from-blue-500 to-violet-500"
                         onClick={() => {
                           setSelectedTemplate(expanded)
+                          trackEvent('template_selected', {
+                            template: expanded,
+                            mode: hasOptimization ? 'optimize' : 'format_only',
+                            source: 'preview_lightbox',
+                          })
                           setExpanded(null)
                         }}
                       >

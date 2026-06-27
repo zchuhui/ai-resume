@@ -8,6 +8,7 @@ import { PageTransition } from '@/components/PageTransition'
 import { LoadingOverlay } from '@/components/LoadingOverlay'
 import { RotateCcw, CheckCircle2, ArrowLeft, FileDown, FileText, Target } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { trackEvent } from '@/lib/analytics'
 
 interface DownloadProps {
   onRestart: () => void
@@ -50,6 +51,8 @@ export default function Download({ onRestart, onBackHome }: DownloadProps) {
     setLoading(true)
     setError(null)
     setSuccess(null)
+    const startedAt = Date.now()
+    trackEvent('export_started', { format, template })
 
     try {
       // PDF 和 Word 都调用后端 API 生成
@@ -63,8 +66,20 @@ export default function Download({ onRestart, onBackHome }: DownloadProps) {
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
       setSuccess(format)
+      trackEvent('export_success', {
+        format,
+        template,
+        durationMs: Date.now() - startedAt,
+      })
     } catch (err) {
-      setError(err instanceof Error ? err.message : '导出失败，请稍后重试')
+      const message = err instanceof Error ? err.message : '导出失败，请稍后重试'
+      trackEvent('export_failed', {
+        format,
+        template,
+        durationMs: Date.now() - startedAt,
+        error: message,
+      })
+      setError(message)
     } finally {
       setLoading(false)
     }

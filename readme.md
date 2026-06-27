@@ -16,6 +16,7 @@
 - **模板转化链路**：模板详情页可直接进入上传页，系统会记住来源模板；也可以用示例简历一键体验完整预览流程。
 - **多页流程**：首页、上传、模板预览、下载、模板库、模板详情、AI 优化介绍、FAQ 和简历指南使用独立路由，支持刷新、返回和直接分享链接。
 - **SEO 内容体系**：公开页面配置独立标题、描述、Canonical、Open Graph、结构化数据、`robots.txt` 和 `sitemap.xml`；指南页覆盖产品经理、程序员、运营、数据分析师、UI/UX 设计师等长尾关键词。
+- **埋点与简易后台**：匿名采集页面访问、模板点击、上传解析、AI 优化、导出和错误事件，后台可查看核心漏斗与页面排行。
 - **导出能力**：支持 PDF 和 Word 导出；PDF 由后端 Puppeteer 渲染，保留可选中文本和打印分页。
 - **隐私友好**：不依赖数据库，上传文件在内存中处理，解析后立即释放文件 buffer。
 - **生产配置**：支持 CORS 白名单、IP 限流、AI 模型分任务配置和 Docker 部署。
@@ -61,8 +62,8 @@
 ai-resume/
 ├── api/                    # Express API 服务
 │   ├── src/
-│   │   ├── routes/         # upload / parse / optimize / export
-│   │   ├── services/       # AI、解析、导出、PDF 渲染
+│   │   ├── routes/         # upload / parse / optimize / export / analytics
+│   │   ├── services/       # AI、解析、导出、PDF 渲染、埋点统计
 │   │   ├── middleware/     # 限流、错误处理
 │   │   └── schemas/        # Zod 请求校验
 │   └── Dockerfile
@@ -145,6 +146,17 @@ ALLOWED_ORIGINS=http://localhost:5173
 # AI 相关接口限流
 RATE_LIMIT_MAX=10
 RATE_LIMIT_WINDOW_MS=3600000
+
+# 简易后台：生产环境必须配置，访问 /admin 时填写账号和密码
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=change_me
+
+# 可选：兼容机器访问或临时脚本访问，设置后也可用 x-admin-token 请求统计接口
+# ADMIN_TOKEN=change_me
+
+# 埋点事件本地存储目录，默认 api/data
+ANALYTICS_DATA_DIR=./data
+ANALYTICS_IP_SALT=change_me
 ```
 
 ## 核心流程
@@ -160,6 +172,7 @@ RATE_LIMIT_WINDOW_MS=3600000
 | `/faq` | 常见问题 | 可索引 |
 | `/guides` | 简历指南列表 | 可索引 |
 | `/guides/:slug` | 职业/场景向简历指南，带推荐模板 | 可索引 |
+| `/admin` | 简易运营后台 | `noindex` |
 | `/upload` | 上传简历与填写 JD | `noindex` |
 | `/preview` | 模板预览与选择 | `noindex` |
 | `/download` | 导出 PDF / Word | `noindex` |
@@ -198,6 +211,23 @@ RATE_LIMIT_WINDOW_MS=3600000
 | `POST` | `/api/optimize` | 非流式岗位优化 |
 | `POST` | `/api/optimize/stream` | SSE 流式岗位优化 |
 | `POST` | `/api/export` | 导出 PDF / Word |
+| `POST` | `/api/analytics/events` | 匿名事件采集 |
+| `GET` | `/api/analytics/summary` | 后台统计汇总，需管理员账号和密码 |
+
+## 埋点与后台
+
+前端会自动记录匿名 session，并采集页面访问和核心漏斗事件。事件只包含页面、模板 ID、导出格式、处理模式、耗时和错误类型，不采集简历正文、JD、文件名、姓名、邮箱或手机号。
+
+后台入口为 `/admin`。生产环境必须设置：
+
+```env
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=请换成强密码
+```
+
+部署完成后访问 `https://你的域名/admin`，输入上面的账号和密码即可查看运营后台。开发环境未设置 `ADMIN_PASSWORD` 时可以留空密码直接调试；一旦设置了 `ADMIN_PASSWORD`，本地也会按账号密码校验。`ADMIN_TOKEN` 仅用于脚本或内部工具调用统计接口，不建议作为人工登录方式。
+
+默认事件写入 `api/data/analytics-events.jsonl`，该目录已加入 `.gitignore`。如果后端多实例部署，建议把 `ANALYTICS_DATA_DIR` 指向持久化卷；后续数据量增大后再切换到 Postgres 或 CloudBase 数据库。
 
 ## 构建与检查
 

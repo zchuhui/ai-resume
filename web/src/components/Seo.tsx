@@ -119,6 +119,12 @@ const staticRouteSeo: Record<string, SeoConfig> = {
     path: '/download',
     noindex: true,
   },
+  '/admin': {
+    title: '运营后台 - ResumeCraft',
+    description: 'ResumeCraft 内部运营统计后台。',
+    path: '/admin',
+    noindex: true,
+  },
 }
 
 function templateDetailSeo(slug: string): SeoConfig | null {
