@@ -13,6 +13,8 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
+    "@fontsource/noto-sans-sc": "^5.2.9",
+    "@fontsource/noto-serif-sc": "^5.2.8",
     "@react-pdf/renderer": "^4.5.1",
     "cors": "^2.8.6",
     "docx": "^9.7.1",

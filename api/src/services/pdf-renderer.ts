@@ -1,6 +1,9 @@
 // Puppeteer PDF 渲染服务：生成矢量 PDF（文本可选、ATS 可解析）
 // 布局逻辑与前端 React 模板保持一致，颜色/字体从 shared/design-tokens 统一读取
 
+import fs from 'fs'
+import path from 'path'
+import { pathToFileURL } from 'url'
 import puppeteer, { Browser } from 'puppeteer'
 import { Resume, TemplateStyle } from '../types/resume'
 import { designTokens } from '../../../shared/design-tokens'
@@ -17,7 +20,7 @@ function contactItems(info: Resume['basicInfo']): string[] {
 
 function bulletList(items: string[], color: string, fontSize = '10px'): string {
   return items.map(item => `
-    <div style="display:flex;gap:6px;margin-bottom:4px;font-size:${fontSize};color:${color};">
+    <div class="bullet-row" style="display:flex;gap:6px;margin-bottom:4px;font-size:${fontSize};color:${color};">
       <span style="color:${color};flex-shrink:0;">•</span>
       <span>${esc(item)}</span>
     </div>
@@ -37,7 +40,270 @@ function renderSection(title: string, content: string, accentColor: string, font
   `
 }
 
+function resolveRepoFile(relativePath: string): string | null {
+  const roots = [
+    process.cwd(),
+    path.resolve(process.cwd(), '..'),
+    path.resolve(__dirname, '..', '..', '..'),
+    path.resolve(__dirname, '..', '..', '..', '..', '..'),
+  ]
+
+  for (const root of roots) {
+    const candidate = path.resolve(root, relativePath)
+    try {
+      fs.accessSync(candidate)
+      return candidate
+    } catch {
+      // Try the next likely runtime root.
+    }
+  }
+
+  return null
+}
+
+function fontFace(family: string, packageName: string, filePrefix: string, weights: number[]): string {
+  return weights.map((weight) => {
+    const fontPath =
+      resolveRepoFile(`api/node_modules/@fontsource/${packageName}/files/${filePrefix}-chinese-simplified-${weight}-normal.woff2`) ||
+      resolveRepoFile(`web/node_modules/@fontsource/${packageName}/files/${filePrefix}-chinese-simplified-${weight}-normal.woff2`)
+
+    if (!fontPath) return ''
+
+    return `
+      @font-face {
+        font-family: '${family}';
+        font-style: normal;
+        font-display: block;
+        font-weight: ${weight};
+        src: url('${pathToFileURL(fontPath).href}') format('woff2');
+      }
+    `
+  }).join('\n')
+}
+
+function pdfFontFaces(): string {
+  const weights = [300, 400, 500, 600, 700, 800, 900]
+  return [
+    fontFace('Noto Sans SC', 'noto-sans-sc', 'noto-sans-sc', weights),
+    fontFace('Noto Serif SC', 'noto-serif-sc', 'noto-serif-sc', weights),
+  ].join('\n')
+}
+
+function withChineseFallback(fontFamily: string, preferSerif = false): string {
+  if (fontFamily.includes('Noto Sans SC') || fontFamily.includes('Noto Serif SC')) return fontFamily
+  if (preferSerif || /(^|,\s*)serif\s*$/i.test(fontFamily)) {
+    return fontFamily.replace(/(^|,\s*)serif\s*$/i, ", 'Noto Serif SC', serif")
+  }
+  if (/(^|,\s*)sans-serif\s*$/i.test(fontFamily)) {
+    return fontFamily.replace(/(^|,\s*)sans-serif\s*$/i, ", 'Noto Sans SC', sans-serif")
+  }
+  return `${fontFamily}, 'Noto Sans SC', sans-serif`
+}
+
+function normalizeFonts(fonts: { body: string; heading: string; mono?: string }) {
+  return {
+    ...fonts,
+    body: withChineseFallback(fonts.body),
+    heading: withChineseFallback(fonts.heading, fonts.heading.includes('Playfair') || fonts.heading.includes('Merriweather')),
+    mono: fonts.mono ? withChineseFallback(fonts.mono) : fonts.mono,
+  }
+}
+
+const chineseProSkillGroups = ['后端', '前端', '数据 / 存储', '工程化 / 运维', 'AI 研发 / Builder', '业务领域']
+
+function groupedSkills(skills: string[]): Array<{ label: string; skills: string[] }> {
+  if (skills.length === 0) return []
+  const chunkSize = Math.max(2, Math.ceil(skills.length / chineseProSkillGroups.length))
+  return chineseProSkillGroups
+    .map((label, index) => ({
+      label,
+      skills: skills.slice(index * chunkSize, (index + 1) * chunkSize),
+    }))
+    .filter((group) => group.skills.length > 0)
+}
+
 // ── Template HTML generators ──
+
+function generateChineseProfessionalHtml(resume: Resume, tokens: typeof designTokens.chinesePro): string {
+  const { colors, fonts } = tokens
+  const contact = [
+    resume.basicInfo.phone,
+    resume.basicInfo.email,
+    resume.basicInfo.location,
+  ].filter((item): item is string => !!item)
+
+  const sectionTitle = (index: string, title: string) => `
+    <div class="cp-section-head">
+      <span>${index}</span>
+      <h2>${esc(title)}</h2>
+      <i></i>
+    </div>
+  `
+
+  const sidebarSection = (title: string, content: string) => `
+    <section class="cp-side-section">
+      <h3>${esc(title)}</h3>
+      ${content}
+    </section>
+  `
+
+  const mainBullets = (items: string[]) => `
+    <div class="cp-bullets">
+      ${items.map((item) => `
+        <div class="bullet-row cp-bullet">
+          <span></span>
+          <p>${esc(item)}</p>
+        </div>
+      `).join('')}
+    </div>
+  `
+
+  const sidebar = `
+    <aside class="cp-sidebar">
+      <div class="cp-profile">
+        <div class="cp-avatar">${esc(resume.basicInfo.name.replace(/\s/g, '').slice(0, 1) || '简')}</div>
+        <h1>${esc(resume.basicInfo.name)}</h1>
+        <p>${esc(resume.basicInfo.title || 'FULL-STACK ENGINEER')}</p>
+      </div>
+
+      ${sidebarSection('基本信息', `
+        <div class="cp-contact">
+          ${contact.map((item) => `<p>${esc(item)}</p>`).join('')}
+          <p>专业中文投递模板</p>
+        </div>
+      `)}
+
+      ${resume.skills.length > 0 ? sidebarSection('核心技能', `
+        ${groupedSkills(resume.skills).map((group) => `
+          <div class="cp-skill-group">
+            <h4>${esc(group.label)}</h4>
+            <div>${group.skills.map((skill) => `<span>${esc(skill)}</span>`).join('')}</div>
+          </div>
+        `).join('')}
+      `) : ''}
+
+      ${resume.education.length > 0 ? sidebarSection('教育背景', `
+        ${resume.education.map((item) => `
+          <div class="cp-side-item">
+            <strong>${esc(item.school)}</strong>
+            <p>${esc(item.degree)}${item.field ? ` · ${esc(item.field)}` : ''}</p>
+            <small>${esc(item.startDate)} - ${esc(item.endDate)}</small>
+          </div>
+        `).join('')}
+      `) : ''}
+
+      ${sidebarSection('职业亮点', `
+        <div class="cp-highlights">
+          ${resume.projects.slice(0, 4).map((project) => `
+            <p><strong>${esc(project.name.split('·')[0].trim())}</strong><br><span>${esc(project.role || '核心项目经验')}</span></p>
+          `).join('')}
+        </div>
+      `)}
+
+      ${(resume.languages?.length || resume.certifications?.length) ? sidebarSection('语言 / 认证', `
+        <div class="cp-side-list">
+          ${resume.languages?.map((item) => `<p>${esc(item.language)} - ${esc(item.proficiency)}</p>`).join('') || ''}
+          ${resume.certifications?.map((item) => `<p>${esc(item.name)}${item.issuer ? ` · ${esc(item.issuer)}` : ''}</p>`).join('') || ''}
+        </div>
+      `) : ''}
+    </aside>
+  `
+
+  const main = `
+    <main class="cp-main">
+      ${resume.summary ? `
+        <section class="cp-section">
+          ${sectionTitle('01', '个人优势')}
+          <p class="cp-summary">${esc(resume.summary)}</p>
+        </section>
+      ` : ''}
+
+      ${resume.experience.length > 0 ? `
+        <section class="cp-section">
+          ${sectionTitle('02', '工作经历')}
+          <div class="cp-timeline">
+            ${resume.experience.map((item) => `
+              <article class="cp-item">
+                <span class="cp-dot"></span>
+                <div class="cp-item-top">
+                  <h3>${esc(item.company)}</h3>
+                  <time>${esc(item.startDate)} - ${esc(item.endDate)}</time>
+                </div>
+                <p class="cp-role">${esc(item.position)}${item.location ? ` · ${esc(item.location)}` : ''}</p>
+                ${mainBullets(item.description)}
+              </article>
+            `).join('')}
+          </div>
+        </section>
+      ` : ''}
+
+      ${resume.projects.length > 0 ? `
+        <section class="cp-section">
+          ${sectionTitle('03', '项目经历')}
+          ${resume.projects.map((item) => `
+            <article class="cp-project">
+              <div class="cp-item-top">
+                <h3>${esc(item.name)}</h3>
+                <time>${esc(item.startDate || '')}${item.startDate || item.endDate ? ' - ' : ''}${esc(item.endDate || '')}</time>
+              </div>
+              ${item.role ? `<p class="cp-role">${esc(item.role)}</p>` : ''}
+              ${resume.skills.length > 0 ? `<p class="cp-stack">技术栈：${resume.skills.slice(0, 8).map(esc).join(' + ')}</p>` : ''}
+              ${mainBullets(item.description)}
+            </article>
+          `).join('')}
+        </section>
+      ` : ''}
+    </main>
+  `
+
+  return `
+    <div class="cp-page" style="font-family:${fonts.body};background:${colors.bg};color:${colors.text};">
+      <style>
+        .cp-page { display:flex; min-height:297mm; position:relative; background:#fff; isolation:isolate; }
+        .cp-page:before { content:""; position:fixed; left:0; top:0; bottom:0; width:34%; background:${colors.surface}; z-index:0; }
+        .cp-sidebar { width:34%; flex-shrink:0; position:relative; z-index:1; background:${colors.surface}; color:#d5e1ee; padding:28px 20px; box-sizing:border-box; }
+        .cp-profile { text-align:center; margin-bottom:22px; }
+        .cp-avatar { width:72px; height:72px; border-radius:999px; border:2px solid ${colors.accent}; margin:0 auto 14px; background:#1b2f49; color:#fff; font-size:32px; font-weight:600; line-height:72px; box-shadow:0 0 18px rgba(9,196,222,.32); }
+        .cp-profile h1 { margin:0; color:#fff; font-size:26px; font-weight:650; line-height:1.15; font-family:${fonts.heading}; }
+        .cp-profile p { margin:8px 0 0; color:${colors.accent}; font-size:10px; letter-spacing:.22em; text-transform:uppercase; }
+        .cp-side-section { margin-top:20px; break-inside:avoid; page-break-inside:avoid; }
+        .cp-side-section h3 { margin:0 0 10px; padding-bottom:8px; color:#fff; border-bottom:1px solid #1b4052; font-size:12px; font-weight:650; }
+        .cp-side-section h3:before { content:""; display:inline-block; width:4px; height:12px; border-radius:10px; background:${colors.accent}; margin-right:7px; vertical-align:-2px; }
+        .cp-contact p, .cp-side-list p { margin:0 0 7px; font-size:10.5px; line-height:1.45; color:#d5e1ee; }
+        .cp-skill-group { margin-bottom:10px; }
+        .cp-skill-group h4 { margin:0 0 6px; color:${colors.accent}; font-size:10.5px; font-weight:650; }
+        .cp-skill-group span { display:inline-block; margin:0 4px 5px 0; padding:3px 7px; border:1px solid #0f6d83; border-radius:3px; background:#153b55; color:#e9f3fb; font-size:9.5px; line-height:1.15; }
+        .cp-side-item { margin-bottom:10px; }
+        .cp-side-item strong { display:block; color:#fff; font-size:11px; line-height:1.35; }
+        .cp-side-item p { margin:2px 0; color:${colors.accent}; font-size:10px; line-height:1.35; }
+        .cp-side-item small { color:#8ea3bb; font-size:9px; }
+        .cp-highlights p { margin:0 0 10px; color:${colors.accent}; font-size:10.5px; line-height:1.45; }
+        .cp-highlights span { color:#aab9c9; }
+        .cp-main { width:66%; position:relative; z-index:1; box-sizing:border-box; padding:28px 30px 30px; background:#fff; }
+        .cp-section { margin-bottom:18px; }
+        .cp-section-head { display:flex; align-items:center; gap:9px; margin-bottom:12px; break-after:avoid; page-break-after:avoid; }
+        .cp-section-head span { display:inline-flex; width:26px; height:26px; align-items:center; justify-content:center; border-radius:4px; background:#111827; color:#fff; font-size:12px; font-weight:650; }
+        .cp-section-head h2 { margin:0; color:#111827; font-size:20px; line-height:1; font-weight:650; font-family:${fonts.heading}; }
+        .cp-section-head i { height:2px; background:#111827; flex:1; }
+        .cp-summary { margin:0; color:#314158; font-size:11.5px; line-height:1.72; }
+        .cp-item { position:relative; padding-left:16px; margin-bottom:14px; break-inside:auto; page-break-inside:auto; }
+        .cp-dot { position:absolute; left:0; top:4px; width:9px; height:9px; border-radius:50%; border:3px solid ${colors.accent3}; background:${colors.accent}; box-sizing:border-box; }
+        .cp-item-top { display:flex; justify-content:space-between; align-items:baseline; gap:18px; break-after:avoid; page-break-after:avoid; }
+        .cp-item-top h3 { margin:0; color:#111827; font-size:13.5px; font-weight:650; line-height:1.25; font-family:${fonts.heading}; }
+        .cp-item-top time { flex-shrink:0; color:#7a8ba3; font-size:10px; }
+        .cp-role { margin:3px 0 0; color:${colors.accent}; font-size:11px; font-weight:650; line-height:1.35; }
+        .cp-bullets { margin-top:6px; }
+        .cp-bullet { margin-bottom:4px; font-size:11px; line-height:1.48; color:#314158; }
+        .cp-bullet span { width:4px; height:4px; border-radius:50%; background:${colors.accent}; margin-top:7px; flex-shrink:0; }
+        .cp-bullet p { margin:0; }
+        .cp-project { margin-bottom:15px; break-inside:auto; page-break-inside:auto; }
+        .cp-stack { margin:6px 0 5px; padding:6px 8px; background:${colors.highlight}; color:#42526a; font-size:10px; line-height:1.45; }
+      </style>
+      ${sidebar}
+      ${main}
+    </div>
+  `
+}
 
 function generateMinimalistHtml(resume: Resume, tokens: typeof designTokens.minimalist): string {
   const { colors, fonts } = tokens
@@ -168,7 +434,7 @@ function generateTechHtml(resume: Resume, tokens: typeof designTokens.tech): str
     </div>
   `
 
-  return `<div style="display:flex;min-height:277mm;">${sidebar}${main}</div>`
+  return `<div style="display:flex;min-height:297mm;">${sidebar}${main}</div>`
 }
 
 function generateElegantHtml(resume: Resume, tokens: typeof designTokens.elegant): string {
@@ -360,7 +626,7 @@ function generateCreativeHtml(resume: Resume, tokens: typeof designTokens.creati
 
   const main = `<div style="padding:24px 20px;flex:1;min-width:0;">${mainSections.join('')}</div>`
 
-  return `<div style="display:flex;min-height:277mm;">${sidebar}${main}</div>`
+  return `<div style="display:flex;min-height:297mm;">${sidebar}${main}</div>`
 }
 
 function generateAcademicHtml(resume: Resume, tokens: typeof designTokens.academic): string {
@@ -437,20 +703,34 @@ function wrapHtml(body: string, fonts: { body: string; heading: string }, bg: st
 <head>
   <meta charset="UTF-8">
   <style>
-    @page { size: A4; margin: 10mm; }
+    ${pdfFontFaces()}
+    @page { size: A4; margin: 0; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { background: ${bg}; }
+    html, body {
+      width: 210mm;
+      min-height: 297mm;
+      background: ${bg};
+    }
     body {
       font-family: ${fonts.body}, -apple-system, BlinkMacSystemFont, sans-serif;
       -webkit-font-smoothing: antialiased;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
     }
     h1, h2, h3, h4 { font-family: ${fonts.heading}, ${fonts.body}, sans-serif; }
-    /* 分页时保护：单个条目不被从中间切断，章节标题不落在页尾 */
-    .item { break-inside: avoid; page-break-inside: avoid; }
+    .pdf-root,
+    .pdf-root * {
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
+    /* 分页时只保护标题和单条 bullet，避免整块项目被推到下一页造成首页大空白。 */
+    .item { break-inside: auto; page-break-inside: auto; }
     .sec-head { break-after: avoid; page-break-after: avoid; }
+    .bullet-row { break-inside: avoid; page-break-inside: avoid; }
+    p, .item, .bullet-row { orphans: 2; widows: 2; }
   </style>
 </head>
-<body><div style="position:fixed;inset:0;background:${bg};z-index:-1;"></div>${body}</body>
+<body><div style="position:fixed;inset:0;background:${bg};z-index:-1;"></div><div class="pdf-root">${body}</div></body>
 </html>
   `.trim()
 }
@@ -464,6 +744,7 @@ const htmlGenerators: Record<TemplateStyle, (resume: Resume, tokens: typeof desi
   business: generateBusinessHtml,
   creative: generateCreativeHtml,
   academic: generateAcademicHtml,
+  chinesePro: generateChineseProfessionalHtml,
   cobalt: generateTechHtml,
   corporate: generateElegantHtml,
   compact: generateBusinessHtml,
@@ -478,8 +759,9 @@ const htmlGenerators: Record<TemplateStyle, (resume: Resume, tokens: typeof desi
 export function generateHtmlForPdf(resume: Resume, template: TemplateStyle): string {
   const tokens = designTokens[template] || designTokens.minimalist
   const generator = htmlGenerators[template] || htmlGenerators.minimalist
-  const body = generator(resume, tokens)
-  return wrapHtml(body, tokens.fonts, tokens.colors.bg)
+  const pdfTokens = { ...tokens, fonts: normalizeFonts(tokens.fonts) }
+  const body = generator(resume, pdfTokens)
+  return wrapHtml(body, pdfTokens.fonts, tokens.colors.bg)
 }
 
 // ── Puppeteer rendering ──
@@ -508,6 +790,7 @@ export async function renderResumeToPdf(resume: Resume, template: TemplateStyle)
   try {
     const html = generateHtmlForPdf(resume, template)
     await page.setContent(html, { waitUntil: 'load', timeout: 15000 })
+    await page.evaluateHandle('document.fonts.ready')
 
     const pdfBuffer = await page.pdf({
       format: 'A4',

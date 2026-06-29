@@ -5,6 +5,7 @@ import { ElegantTemplate } from './ElegantTemplate'
 import { BusinessTemplate } from './BusinessTemplate'
 import { CreativeTemplate } from './CreativeTemplate'
 import { AcademicTemplate } from './AcademicTemplate'
+import { ChineseProfessionalTemplate } from './ChineseProfessionalTemplate'
 import { CobaltTemplate, CorporateTemplate, CompactTemplate, FinanceTemplate, WarmTemplate, EditorialTemplate, AuroraTemplate, PortfolioTemplate, NoirTemplate } from './ExpandedTemplates'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +22,7 @@ const templates: Record<TemplateStyle, React.ComponentType<{ resume: Resume; cla
   business: BusinessTemplate,
   creative: CreativeTemplate,
   academic: AcademicTemplate,
+  chinesePro: ChineseProfessionalTemplate,
   cobalt: CobaltTemplate,
   corporate: CorporateTemplate,
   compact: CompactTemplate,
@@ -48,4 +50,4 @@ export function ResumePreview({ resume, style, className }: ResumePreviewProps) 
   )
 }
 
-export { MinimalistTemplate, TechTemplate, ElegantTemplate, BusinessTemplate, CreativeTemplate, AcademicTemplate, CobaltTemplate, CorporateTemplate, CompactTemplate, FinanceTemplate, WarmTemplate, EditorialTemplate, AuroraTemplate, PortfolioTemplate, NoirTemplate }
+export { MinimalistTemplate, TechTemplate, ElegantTemplate, BusinessTemplate, CreativeTemplate, AcademicTemplate, ChineseProfessionalTemplate, CobaltTemplate, CorporateTemplate, CompactTemplate, FinanceTemplate, WarmTemplate, EditorialTemplate, AuroraTemplate, PortfolioTemplate, NoirTemplate }
