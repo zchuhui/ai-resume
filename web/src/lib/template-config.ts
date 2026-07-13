@@ -138,7 +138,7 @@ export const templateRegistry: Record<TemplateStyle, TemplateMeta> = {
     recommended: ['全栈', '后端', '产品技术', '项目管理', '数据'],
     category: 'tech',
     strategy: 'application',
-    demoRole: '全栈工程师',
+    demoRole: '后端架构师',
     bestFor: ['全栈工程师', '后端工程师', '技术主管', '产品技术负责人', '数据平台'],
     avoidFor: ['插画', '纯作品集', '高端奢华'],
     visualTags: ['中文优化', '左栏', '白底正文', '时间轴'],
