@@ -9,7 +9,7 @@ const distDir = resolve(root, 'dist')
 const publicDir = resolve(root, 'public')
 
 // 不进 sitemap 的流程页（已在 Seo 组件里标记 noindex）。
-const NOINDEX_ROUTES = new Set(['/upload', '/preview', '/download', '/admin'])
+const NOINDEX_ROUTES = new Set(['/upload', '/preview', '/edit', '/download', '/admin'])
 
 function loadSiteUrl() {
   let url = process.env.VITE_SITE_URL || process.env.SITE_URL

@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Disallow: /upload
 Disallow: /preview
+Disallow: /edit
 Disallow: /download
 Disallow: /admin
 Sitemap: https://resume.dolfi.chat/sitemap.xml

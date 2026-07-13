@@ -26,12 +26,12 @@ function buildFileName(resume: { basicInfo: { name?: string; title?: string } })
 }
 
 export default function Download({ onRestart, onBackHome }: DownloadProps) {
-  const { optimizedResume, selectedTemplate, atsReport } = useResumeStore()
+  const { optimizedResume, editedResume, selectedTemplate, atsReport } = useResumeStore()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState<'pdf' | 'docx' | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  const resume = optimizedResume
+  const resume = editedResume ?? optimizedResume
   const template = selectedTemplate
 
   if (!resume || !template) {

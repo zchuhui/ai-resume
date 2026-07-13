@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, Outlet, useNavigate, useSearchParams } from 'react-router-dom'
 import type { RouteRecord } from 'vite-react-ssg'
 import { useResumeStore } from '@/lib/store'
-import { Download, Home, Preview, Templates, Upload } from '@/pages'
+import { Download, Edit, Home, Preview, Templates, Upload } from '@/pages'
 import AiResumeOptimizer from '@/pages/AiResumeOptimizer'
 import TemplateDetail from '@/pages/TemplateDetail'
 import Faq from '@/pages/Faq'
@@ -65,7 +65,7 @@ function PreviewRoute() {
 
   return (
     <Preview
-      onNext={() => navigate('/download')}
+      onNext={() => navigate('/edit')}
       onBack={() => navigate('/upload')}
       onRegenerate={() => {
         navigate('/upload')
@@ -75,13 +75,34 @@ function PreviewRoute() {
   )
 }
 
+function EditRoute() {
+  const navigate = useNavigate()
+  const editedResume = useResumeStore((state) => state.editedResume)
+  const selectedTemplate = useResumeStore((state) => state.selectedTemplate)
+
+  if (!editedResume) {
+    return <Navigate to="/upload" replace />
+  }
+
+  if (!selectedTemplate) {
+    return <Navigate to="/preview" replace />
+  }
+
+  return (
+    <Edit
+      onBack={() => navigate('/preview')}
+      onNext={() => navigate('/download')}
+    />
+  )
+}
+
 function DownloadRoute() {
   const navigate = useNavigate()
   const reset = useResumeStore((state) => state.reset)
-  const optimizedResume = useResumeStore((state) => state.optimizedResume)
+  const resume = useResumeStore((state) => state.editedResume ?? state.optimizedResume)
   const selectedTemplate = useResumeStore((state) => state.selectedTemplate)
 
-  if (!optimizedResume) {
+  if (!resume) {
     return <Navigate to="/upload" replace />
   }
 
@@ -108,6 +129,7 @@ export const routes: RouteRecord[] = [
       { index: true, element: <HomeRoute /> },
       { path: 'upload', element: <UploadRoute /> },
       { path: 'preview', element: <PreviewRoute /> },
+      { path: 'edit', element: <EditRoute /> },
       { path: 'download', element: <DownloadRoute /> },
       { path: 'templates', element: <Templates /> },
       {
