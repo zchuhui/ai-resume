@@ -8,5 +8,8 @@ shared/*.js.map
 shared/*.d.ts
 shared/*.d.ts.map
 
+# Root node_modules (concurrently)
+node_modules/
+
 # Local analytics event storage
 api/data/
